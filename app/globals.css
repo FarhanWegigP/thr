@@ -15,6 +15,40 @@
   --mono:    'DM Mono', monospace;
 }
 
+/* ── THEMES ── */
+[data-theme="dark"] {
+  --bg:      #0D0A00;
+  --surface: #1A1500;
+  --border:  #3A3000;
+  --text:    #F5E6C8;
+  --muted:   #A09060;
+  --dim:     #6A5A30;
+  --gold:    #E8C45A;
+  --gold-hi: #F5D878;
+}
+
+[data-theme="pink"] {
+  --bg:      #1A0018;
+  --surface: #260020;
+  --border:  #6B1055;
+  --text:    #FFE8F8;
+  --muted:   #D880B8;
+  --dim:     #904878;
+  --gold:    #FF78B8;
+  --gold-hi: #FFB0D8;
+}
+
+[data-theme="green"] {
+  --bg:      #001A08;
+  --surface: #002410;
+  --border:  #1A5028;
+  --text:    #E8F5E8;
+  --muted:   #80B880;
+  --dim:     #4A7A4A;
+  --gold:    #D4A020;
+  --gold-hi: #F0C040;
+}
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -22,10 +56,11 @@ body {
   color: var(--text);
   font-family: var(--mono);
   overflow-x: hidden;
+  transition: background 0.4s ease;
 }
 
 /* ── STARS ── */
-.main { position: relative; min-height: 100vh; }
+.main { position: relative; min-height: 100vh; background: var(--bg); transition: background 0.4s ease; }
 
 .stars {
   position: fixed;
@@ -39,6 +74,7 @@ body {
   background: var(--gold);
   border-radius: 50%;
   animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+  transition: background 0.4s ease;
 }
 
 @keyframes twinkle {
@@ -60,7 +96,7 @@ body {
   display: inline-block;
   width: fit-content;
   padding: 4px 14px;
-  border: 0.5px solid #C9A84C44;
+  border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
   border-radius: 100px;
   font-size: 10px;
   color: var(--gold);
@@ -137,6 +173,7 @@ body {
   flex-shrink: 0;
   margin-top: 20px;
   animation: float 4s ease-in-out infinite;
+  transition: box-shadow 0.4s ease;
 }
 
 @keyframes float {
@@ -154,7 +191,7 @@ body {
 .divider {
   width: 100%;
   height: 0.5px;
-  background: linear-gradient(to right, transparent, #C9A84C33, transparent);
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--gold) 25%, transparent), transparent);
   position: relative;
   z-index: 1;
 }
@@ -248,7 +285,7 @@ body {
   display: inline-block;
   width: fit-content;
   padding: 4px 12px;
-  border: 0.5px solid #C9A84C44;
+  border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
   border-radius: 4px;
   font-size: 10px;
   color: var(--gold);
@@ -290,11 +327,15 @@ body {
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qris-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
@@ -307,22 +348,7 @@ body {
   height: 2px;
   background: var(--gold);
   border-radius: 0 0 4px 4px;
-  box-shadow: 0 0 16px #C9A84C66;
-}
-
-.qris-img-wrap {
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.qris-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--gold) 40%, transparent);
 }
 
 .qris-caption {
@@ -360,7 +386,7 @@ body {
 
 .ornament {
   font-size: 12px;
-  color: #C9A84C33;
+  color: color-mix(in srgb, var(--gold) 25%, transparent);
   letter-spacing: 0.2em;
 }
 
@@ -377,11 +403,12 @@ body {
   color: var(--dim);
   letter-spacing: 0.06em;
 }
+
 /* ── REACTION OVERLAY ── */
 .reaction-overlay {
   position: fixed;
   inset: 0;
-  background: #0D0A00;
+  background: var(--bg);
   z-index: 100;
   display: flex;
   align-items: center;
@@ -414,7 +441,7 @@ body {
 
 .reaction-body {
   font-size: 18px;
-  color: #B0A080;
+  color: var(--muted);
   line-height: 1.9;
 }
 
@@ -438,4 +465,259 @@ body {
 .btn-download:hover {
   border-color: var(--gold);
   color: var(--gold);
+}
+
+/* ══════════════════════════════════════
+   GENERATOR PAGE
+══════════════════════════════════════ */
+.gen-inner {
+  position: relative;
+  z-index: 1;
+  padding: 48px 28px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.gen-header { display: flex; flex-direction: column; gap: 10px; }
+
+.gen-section { display: flex; flex-direction: column; gap: 12px; }
+
+.gen-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.gen-body {
+  font-size: 13px;
+  color: var(--muted);
+  flex: 1;
+}
+
+/* Theme Cards */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.theme-card {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  padding: 0;
+}
+
+.theme-card.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--gold) 25%, transparent);
+}
+
+.theme-preview {
+  height: 80px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  position: relative;
+}
+
+.theme-preview-moon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.theme-preview-bar {
+  height: 3px;
+  border-radius: 2px;
+  width: 60%;
+}
+
+.theme-preview-bar.short { width: 38%; opacity: 0.5; }
+
+.theme-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  padding: 8px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* Upload Zone */
+.upload-zone {
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--surface);
+  min-height: 130px;
+  justify-content: center;
+}
+
+.upload-zone:hover { border-color: var(--gold); }
+
+.upload-zone.has-preview {
+  padding: 0;
+  overflow: hidden;
+  border-style: solid;
+  border-color: var(--border);
+}
+
+.upload-preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+  background: #fff;
+}
+
+.upload-icon { font-size: 22px; color: var(--dim); }
+
+.upload-text {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.upload-hint {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.btn-sm {
+  display: inline-block;
+  padding: 6px 16px;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: 100px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  width: fit-content;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 0.5px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.toggle.on {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+}
+
+/* Meme Grid */
+.meme-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.meme-thumb {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+}
+
+.meme-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.meme-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  border: none;
+  color: #fff;
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.meme-add {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--dim);
+  font-size: 24px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.meme-add:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Gen Btn */
+.gen-btn {
+  width: 100%;
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+}
+
+.gen-btn:disabled, .gen-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Error */
+.gen-error {
+  font-size: 11px;
+  color: #ff6b6b;
+  letter-spacing: 0.04em;
 }

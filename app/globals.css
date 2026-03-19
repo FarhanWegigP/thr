@@ -771,3 +771,10 @@ body {
   border-color: var(--gold);
   color: var(--gold);
 }
+
+/* ── PHONE MOCKUP ── */
+@media (min-width: 700px) {
+  .phone-mockup-col {
+    display: flex !important;
+  }
+}

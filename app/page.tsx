@@ -29,12 +29,22 @@ export default function Home() {
     }, 120);
   };
 
-  const handleDownload = () => {
+const handleDownload = async () => {
+  try {
+    const response = await fetch("/qris.jpeg");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = "/qris.jpeg";
+    a.href = url;
     a.download = "qris-tio.jpeg";
+    document.body.appendChild(a);
     a.click();
-  };
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    window.open("/qris.jpeg", "_blank");
+  }
+};
 
   return (
     <main className="main">
@@ -74,7 +84,7 @@ export default function Home() {
         ya udah deh kalau gitu—
       </p>
       <button className="btn" onClick={handleShowQris}>
-        pencet = orang baik &nbsp;→
+        y &nbsp;→
       </button>
 
     </div>

@@ -52,7 +52,6 @@ async function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promi
   });
 }
 
-// Slot: null = pakai default, File = custom upload
 type MemeSlot = File | null;
 
 function MemeGrid({
@@ -88,29 +87,23 @@ function MemeGrid({
           return (
             <div className="meme-thumb" key={idx}>
               <img src={preview} alt={`slot ${idx + 1}`} />
-              {/* Overlay buttons */}
-              <div style={{
-                position: "absolute", inset: 0,
-                display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-                gap: "4px",
-                background: "rgba(0,0,0,0.45)",
-                opacity: 0,
-                transition: "opacity 0.2s",
-              }}
+              <div
                 className="meme-thumb-overlay"
+                style={{
+                  position: "absolute", inset: 0,
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center",
+                  gap: "4px",
+                  background: "rgba(0,0,0,0.45)",
+                  opacity: 0,
+                  transition: "opacity 0.2s",
+                }}
               >
-                <button
-                  className="meme-action-btn"
-                  onClick={() => inputRefs.current[idx]?.click()}
-                >
+                <button className="meme-action-btn" onClick={() => inputRefs.current[idx]?.click()}>
                   ganti
                 </button>
                 {isCustom && (
-                  <button
-                    className="meme-action-btn meme-action-reset"
-                    onClick={() => onChange(idx, null)}
-                  >
+                  <button className="meme-action-btn meme-action-reset" onClick={() => onChange(idx, null)}>
                     reset
                   </button>
                 )}
@@ -134,11 +127,20 @@ function MemeGrid({
         })}
       </div>
       <p className="upload-hint">
-        • = sudah diganti · hover untuk ganti/reset · default tetap dipakai kalau nggak diganti
+        • = sudah diganti · hover untuk ganti/reset
       </p>
     </div>
   );
 }
+
+// Stars fixed count to avoid hydration mismatch
+const STARS = Array.from({ length: 30 }, (_, i) => ({
+  w: ((i * 7 + 3) % 20) / 10 + 1,
+  top: ((i * 37 + 11) % 100),
+  left: ((i * 53 + 17) % 100),
+  dur: ((i * 13 + 20) % 30) / 10 + 2,
+  delay: ((i * 19 + 5) % 40) / 10,
+}));
 
 export default function GeneratorPage() {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -153,6 +155,14 @@ export default function GeneratorPage() {
 
   const qrisInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  // Live marquee: pakai slot custom kalau ada, fallback ke default
+  const liveLebaranMemes = lebaranSlots.map((s, i) =>
+    s ? URL.createObjectURL(s) : DEFAULT_LEBARAN[i]
+  );
+  const liveThrMemes = thrSlots.map((s, i) =>
+    s ? URL.createObjectURL(s) : DEFAULT_THR[i]
+  );
 
   const handleQrisChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,13 +190,8 @@ export default function GeneratorPage() {
     fd.append("nama", nama.trim());
     fd.append("ucapan", ucapan.trim());
     fd.append("qris", qrisFile);
-
-    lebaranSlots.forEach((f, i) => {
-      if (f) fd.append(`lebaran_${i}`, f);
-    });
-    thrSlots.forEach((f, i) => {
-      if (f) fd.append(`thr_${i}`, f);
-    });
+    lebaranSlots.forEach((f, i) => { if (f) fd.append(`lebaran_${i}`, f); });
+    thrSlots.forEach((f, i) => { if (f) fd.append(`thr_${i}`, f); });
 
     try {
       const res = await fetch("/api/create", { method: "POST", body: fd });
@@ -206,30 +211,46 @@ export default function GeneratorPage() {
 
   return (
     <main className="main" data-theme={theme}>
-      {/* Stars */}
+
+      {/* ── STARS ── */}
       <div className="stars" aria-hidden>
-        {Array.from({ length: 30 }).map((_, i) => (
+        {STARS.map((s, i) => (
           <div key={i} className="star" style={{
-            width: `${Math.random() * 2 + 1}px`,
-            height: `${Math.random() * 2 + 1}px`,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            animationDuration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
-            animationDelay: `${(Math.random() * 4).toFixed(1)}s`,
+            width: `${s.w}px`, height: `${s.w}px`,
+            top: `${s.top}%`, left: `${s.left}%`,
+            animationDuration: `${s.dur}s`,
+            animationDelay: `${s.delay}s`,
           }} />
         ))}
       </div>
 
+      {/* ── LIVE MARQUEE LEBARAN (top) ── */}
+      <div style={{ position: "relative", zIndex: 1, paddingTop: "32px" }}>
+        <div className="marquee-outer">
+          <div className="marquee-track slow">
+            {[...liveLebaranMemes, ...liveLebaranMemes].map((src, i) => (
+              <div className="meme-card" key={i}>
+                <img src={src} alt="lebaran" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── FORM ── */}
       <div className="gen-inner">
+
         {/* Header */}
         <div className="gen-header">
           <span className="badge">✦ BUAT THR KAMU ✦</span>
-          <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: "8px" }}>
-            Bikin Halaman<br /><span className="accent">THR-mu.</span>
-          </h1>
+          <div className="title-wrap" style={{ marginTop: "8px" }}>
+            <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)" }}>
+              Bikin Halaman<br /><span className="accent">THR-mu.</span>
+            </h1>
+            <div className="crescent" style={{ width: 48, height: 48, marginTop: 12 }} />
+          </div>
           <p className="subtitle">
-            Pilih tema · tulis ucapan · upload QRIS · share linknya.<br />
-            Selesai dalam 30 detik.
+            Pilih tema · tulis ucapan · upload QRIS · share linknya.
           </p>
         </div>
 
@@ -316,7 +337,7 @@ export default function GeneratorPage() {
         <div className="gen-section">
           <p className="gen-label">04 / Meme <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
           <p className="gen-body" style={{ fontSize: "12px" }}>
-            Hover tiap gambar untuk ganti. Default otomatis dipakai kalau nggak diganti.
+            Hover tiap gambar untuk ganti. Preview langsung keliatan di marquee atas & bawah.
           </p>
 
           <MemeGrid
@@ -351,6 +372,20 @@ export default function GeneratorPage() {
           {error && <p className="gen-error">⚠ {error}</p>}
         </div>
       </div>
+
+      {/* ── LIVE MARQUEE THR (bottom) ── */}
+      <div style={{ position: "relative", zIndex: 1, paddingBottom: "48px" }}>
+        <div className="marquee-outer">
+          <div className="marquee-track medium">
+            {[...liveThrMemes, ...liveThrMemes].map((src, i) => (
+              <div className="meme-card" key={i}>
+                <img src={src} alt="thr" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </main>
   );
 }

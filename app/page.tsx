@@ -83,11 +83,10 @@ function MemeGrid({ slots, defaults, label, onChange }: {
   );
 }
 
-// Mini marquee preview strip
 function MarqueePreview({ srcs, speed }: { srcs: string[]; speed: "slow" | "medium" }) {
   return (
     <div style={{ borderRadius: 10, overflow: "hidden", border: "0.5px solid var(--border)" }}>
-      <div className="marquee-outer" style={{ mask: "none", WebkitMaskImage: "none" }}>
+      <div className="marquee-outer" style={{ WebkitMaskImage: "none", maskImage: "none" }}>
         <div className={`marquee-track ${speed}`} style={{ gap: 6 }}>
           {[...srcs, ...srcs].map((src, i) => (
             <div key={i} style={{ width: 72, height: 72, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "var(--surface)" }}>
@@ -103,41 +102,66 @@ function MarqueePreview({ srcs, speed }: { srcs: string[]; speed: "slow" | "medi
   );
 }
 
-// Phone mockup with iframe
-function PhoneMockup({ src }: { src: string }) {
+// Full-screen preview overlay with iframe
+function PreviewOverlay({ src, onClose }: { src: string; onClose: () => void }) {
   return (
     <div style={{
-      position: "sticky", top: 24,
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+      position: "fixed", inset: 0, zIndex: 200,
+      background: "rgba(0,0,0,0.85)",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      gap: 12,
+      animation: "fadeup 0.3s ease both",
     }}>
-      <p className="gen-label" style={{ alignSelf: "flex-start" }}>LIVE PREVIEW</p>
+      {/* Header */}
       <div style={{
-        width: 220, height: 440,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        width: "100%", maxWidth: 360, padding: "0 16px",
+      }}>
+        <p style={{ fontSize: 10, color: "#888", letterSpacing: "0.1em" }}>PREVIEW · bisa diklik</p>
+        <button onClick={onClose} style={{
+          background: "transparent", border: "0.5px solid #444",
+          borderRadius: "100px", color: "#888", fontSize: 11,
+          fontFamily: "var(--mono)", padding: "4px 14px", cursor: "pointer",
+        }}>
+          tutup ✕
+        </button>
+      </div>
+
+      {/* Phone frame */}
+      <div style={{
+        width: 300, height: 580,
         background: "#111",
-        borderRadius: 32,
-        padding: "10px 6px",
-        boxShadow: "0 0 0 1.5px #333, 0 0 40px rgba(0,0,0,0.6), inset 0 0 0 1px #222",
+        borderRadius: 40,
+        padding: "12px 8px",
+        boxShadow: "0 0 0 1.5px #333, 0 32px 64px rgba(0,0,0,0.8), inset 0 0 0 1px #222",
         position: "relative",
+        flexShrink: 0,
       }}>
         {/* notch */}
         <div style={{
-          position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
-          width: 50, height: 10, background: "#111",
-          borderRadius: "0 0 8px 8px", zIndex: 10,
+          position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
+          width: 60, height: 12, background: "#111",
+          borderRadius: "0 0 10px 10px", zIndex: 10,
         }} />
-        <div style={{
-          width: "100%", height: "100%",
-          borderRadius: 24, overflow: "hidden",
-          background: "#000",
-        }}>
+        {/* screen */}
+        <div style={{ width: "100%", height: "100%", borderRadius: 30, overflow: "hidden", background: "#000" }}>
           <iframe
             src={src}
-            style={{ width: "100%", height: "100%", border: "none", transform: "scale(1)", transformOrigin: "top left" }}
-            title="preview"
+            style={{ width: "100%", height: "100%", border: "none" }}
+            title="preview THR"
           />
         </div>
+        {/* side buttons */}
+        <div style={{ position: "absolute", right: -3, top: 80, width: 3, height: 32, background: "#333", borderRadius: 2 }} />
+        <div style={{ position: "absolute", left: -3, top: 70, width: 3, height: 22, background: "#333", borderRadius: 2 }} />
+        <div style={{ position: "absolute", left: -3, top: 100, width: 3, height: 40, background: "#333", borderRadius: 2 }} />
+        <div style={{ position: "absolute", left: -3, top: 148, width: 3, height: 40, background: "#333", borderRadius: 2 }} />
       </div>
-      <p style={{ fontSize: 9, color: "var(--dim)", letterSpacing: "0.06em" }}>interaktif · bisa diklik</p>
+
+      <p style={{ fontSize: 9, color: "#555", letterSpacing: "0.06em" }}>
+        scroll dalam frame untuk lihat selengkapnya
+      </p>
     </div>
   );
 }
@@ -160,12 +184,12 @@ export default function GeneratorPage() {
   const [thrSlots, setThrSlots] = useState<MemeSlot[]>(Array(4).fill(null));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewSrc, setPreviewSrc] = useState("/preview?theme=dark");
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState("/preview?theme=dark&nama=Tio&ucapan=Mohon+maaf+lahir+batin+ya+%F0%9F%8C%99");
 
   const qrisInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Update iframe src whenever theme/nama/ucapan changes (debounced)
   useEffect(() => {
     const t = setTimeout(() => {
       const params = new URLSearchParams({
@@ -174,7 +198,7 @@ export default function GeneratorPage() {
         ucapan: ucapan || "Mohon maaf lahir batin ya 🌙",
       });
       setPreviewSrc(`/preview?${params.toString()}`);
-    }, 600);
+    }, 500);
     return () => clearTimeout(t);
   }, [theme, nama, ucapan]);
 
@@ -184,9 +208,8 @@ export default function GeneratorPage() {
   const handleQrisChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const compressed = await compressImage(file, 1200, 0.85);
-    setQrisFile(compressed);
-    setQrisPreview(URL.createObjectURL(compressed));
+    setQrisFile(await compressImage(file, 1200, 0.85));
+    setQrisPreview(URL.createObjectURL(file));
   };
 
   const updateLebaran = (idx: number, file: File | null) =>
@@ -230,116 +253,108 @@ export default function GeneratorPage() {
         ))}
       </div>
 
-      {/* 2-column layout on wide screen */}
-      <div style={{
-        display: "flex",
-        gap: 0,
-        maxWidth: 900,
-        margin: "0 auto",
-        alignItems: "flex-start",
-      }}>
-        {/* ── LEFT: FORM ── */}
-        <div className="gen-inner" style={{ flex: 1, minWidth: 0 }}>
+      {/* Preview overlay */}
+      {showPreview && <PreviewOverlay src={previewSrc} onClose={() => setShowPreview(false)} />}
 
-          {/* Header */}
-          <div className="gen-header">
-            <span className="badge">✦ BUAT THR KAMU ✦</span>
-            <div className="title-wrap" style={{ marginTop: 8 }}>
-              <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)" }}>
-                Bikin Halaman<br /><span className="accent">THR-mu.</span>
-              </h1>
-              <div className="crescent" style={{ width: 48, height: 48, marginTop: 12 }} />
-            </div>
-            <p className="subtitle">Pilih tema · tulis ucapan · upload QRIS · share linknya.</p>
+      <div className="gen-inner">
+
+        {/* Header */}
+        <div className="gen-header">
+          <span className="badge">✦ BUAT THR KAMU ✦</span>
+          <div className="title-wrap" style={{ marginTop: 8 }}>
+            <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)" }}>
+              Bikin Halaman<br /><span className="accent">THR-mu.</span>
+            </h1>
+            <div className="crescent" style={{ width: 48, height: 48, marginTop: 12 }} />
           </div>
+          <p className="subtitle">Pilih tema · tulis ucapan · upload QRIS · share linknya.</p>
+        </div>
 
-          {/* 01 Theme */}
-          <div className="gen-section">
-            <p className="gen-label">01 / Pilih Tema</p>
-            <div className="theme-grid">
-              {THEMES.map((t) => (
-                <button key={t.id} className={`theme-card ${theme === t.id ? "active" : ""}`} onClick={() => setTheme(t.id)}>
-                  <div className="theme-preview" style={{ background: t.bg }}>
-                    <div className="theme-preview-moon" style={{ boxShadow: `inset -7px -3px 0 0 ${t.accent}` }} />
-                    <div className="theme-preview-bar" style={{ background: t.accent }} />
-                    <div className="theme-preview-bar short" style={{ background: t.accent }} />
-                  </div>
-                  <p className="theme-label">{t.emoji} {t.label}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 02 Nama & Ucapan */}
-          <div className="gen-section">
-            <p className="gen-label">02 / Nama & Ucapan</p>
-            <input className="gen-input" type="text" placeholder="Nama kamu (misal: Tio)" value={nama} maxLength={40} onChange={(e) => setNama(e.target.value)} />
-            <textarea className="gen-textarea" placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"} value={ucapan} maxLength={300} rows={4} onChange={(e) => setUcapan(e.target.value)} />
-            <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
-          </div>
-
-          {/* 03 QRIS */}
-          <div className="gen-section">
-            <p className="gen-label">03 / Upload QRIS kamu</p>
-            <div className={`upload-zone ${qrisPreview ? "has-preview" : ""}`} onClick={() => qrisInputRef.current?.click()}>
-              {qrisPreview ? (
-                <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" />
-              ) : (
-                <>
-                  <p className="upload-icon">⬆</p>
-                  <p className="upload-text">Screenshot QRIS GoPay / OVO / Dana</p>
-                  <p className="upload-hint">jpg · png · webp · auto-compress</p>
-                </>
-              )}
-            </div>
-            <input ref={qrisInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleQrisChange} />
-            {qrisPreview && (
-              <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>
-                ganti foto
+        {/* 01 Theme */}
+        <div className="gen-section">
+          <p className="gen-label">01 / Pilih Tema</p>
+          <div className="theme-grid">
+            {THEMES.map((t) => (
+              <button key={t.id} className={`theme-card ${theme === t.id ? "active" : ""}`} onClick={() => setTheme(t.id)}>
+                <div className="theme-preview" style={{ background: t.bg }}>
+                  <div className="theme-preview-moon" style={{ boxShadow: `inset -7px -3px 0 0 ${t.accent}` }} />
+                  <div className="theme-preview-bar" style={{ background: t.accent }} />
+                  <div className="theme-preview-bar short" style={{ background: t.accent }} />
+                </div>
+                <p className="theme-label">{t.emoji} {t.label}</p>
               </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 02 Nama & Ucapan */}
+        <div className="gen-section">
+          <p className="gen-label">02 / Nama & Ucapan</p>
+          <input className="gen-input" type="text" placeholder="Nama kamu (misal: Tio)" value={nama} maxLength={40} onChange={(e) => setNama(e.target.value)} />
+          <textarea className="gen-textarea" placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"} value={ucapan} maxLength={300} rows={4} onChange={(e) => setUcapan(e.target.value)} />
+          <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
+        </div>
+
+        {/* 03 QRIS */}
+        <div className="gen-section">
+          <p className="gen-label">03 / Upload QRIS kamu</p>
+          <div className={`upload-zone ${qrisPreview ? "has-preview" : ""}`} onClick={() => qrisInputRef.current?.click()}>
+            {qrisPreview ? (
+              <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" />
+            ) : (
+              <>
+                <p className="upload-icon">⬆</p>
+                <p className="upload-text">Screenshot QRIS GoPay / OVO / Dana</p>
+                <p className="upload-hint">jpg · png · webp · auto-compress</p>
+              </>
             )}
           </div>
-
-          {/* 04 Memes */}
-          <div className="gen-section">
-            <p className="gen-label">04 / Meme <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
-            <p className="gen-body" style={{ fontSize: 12 }}>Hover tiap gambar untuk ganti. Preview marquee langsung update.</p>
-
-            <MemeGrid slots={lebaranSlots} defaults={DEFAULT_LEBARAN} label="MARQUEE LEBARAN (5 gambar)" onChange={updateLebaran} />
-            {/* Mini marquee preview lebaran */}
-            <MarqueePreview srcs={liveLebaranMemes} speed="slow" />
-
-            <MemeGrid slots={thrSlots} defaults={DEFAULT_THR} label="MARQUEE MINTA THR (4 gambar)" onChange={updateThr} />
-            {/* Mini marquee preview thr */}
-            <MarqueePreview srcs={liveThrMemes} speed="medium" />
-          </div>
-
-          {/* Generate */}
-          <div className="gen-section">
-            <button
-              className={`btn gen-btn ${!qrisFile || loading ? "disabled" : ""}`}
-              onClick={handleSubmit}
-              disabled={!qrisFile || loading}
-              style={{
-                borderColor: qrisFile && !loading ? currentTheme.accent : undefined,
-                color: qrisFile && !loading ? currentTheme.accent : undefined,
-              }}
-            >
-              {loading ? "generating..." : "Buat halaman THR →"}
+          <input ref={qrisInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleQrisChange} />
+          {qrisPreview && (
+            <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>
+              ganti foto
             </button>
-            {!qrisFile && <p className="upload-hint">upload QRIS dulu ya ↑</p>}
-            {error && <p className="gen-error">⚠ {error}</p>}
-          </div>
+          )}
         </div>
 
-        {/* ── RIGHT: PHONE MOCKUP (hidden on mobile) ── */}
-        <div style={{
-          width: 280, flexShrink: 0,
-          padding: "48px 24px 48px 0",
-          display: "none",
-        }} className="phone-mockup-col">
-          <PhoneMockup src={previewSrc} />
+        {/* 04 Memes */}
+        <div className="gen-section">
+          <p className="gen-label">04 / Meme <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
+          <p className="gen-body" style={{ fontSize: 12 }}>Hover tiap gambar untuk ganti. Preview marquee langsung update.</p>
+
+          <MemeGrid slots={lebaranSlots} defaults={DEFAULT_LEBARAN} label="MARQUEE LEBARAN (5 gambar)" onChange={updateLebaran} />
+          <MarqueePreview srcs={liveLebaranMemes} speed="slow" />
+
+          <MemeGrid slots={thrSlots} defaults={DEFAULT_THR} label="MARQUEE MINTA THR (4 gambar)" onChange={updateThr} />
+          <MarqueePreview srcs={liveThrMemes} speed="medium" />
         </div>
+
+        {/* Generate */}
+        <div className="gen-section">
+          {/* Preview button */}
+          <button
+            className="btn-sm"
+            style={{ width: "100%", textAlign: "center", padding: "12px", marginBottom: 8 }}
+            onClick={() => setShowPreview(true)}
+          >
+            👁 lihat tampilan dulu
+          </button>
+
+          <button
+            className={`btn gen-btn ${!qrisFile || loading ? "disabled" : ""}`}
+            onClick={handleSubmit}
+            disabled={!qrisFile || loading}
+            style={{
+              borderColor: qrisFile && !loading ? currentTheme.accent : undefined,
+              color: qrisFile && !loading ? currentTheme.accent : undefined,
+            }}
+          >
+            {loading ? "generating..." : "Buat halaman THR →"}
+          </button>
+          {!qrisFile && <p className="upload-hint">upload QRIS dulu ya ↑</p>}
+          {error && <p className="gen-error">⚠ {error}</p>}
+        </div>
+
       </div>
     </main>
   );

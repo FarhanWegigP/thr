@@ -10,65 +10,164 @@ const THEMES: {
   emoji: string;
   bg: string;
   accent: string;
-  surface: string;
 }[] = [
-  {
-    id: "dark",
-    label: "Malam Emas",
-    emoji: "🌙",
-    bg: "#0D0A00",
-    accent: "#E8C45A",
-    surface: "#1A1500",
-  },
-  {
-    id: "pink",
-    label: "Manis",
-    emoji: "🌸",
-    bg: "#1A0018",
-    accent: "#FF78B8",
-    surface: "#260020",
-  },
-  {
-    id: "green",
-    label: "Lebaran",
-    emoji: "🌿",
-    bg: "#001A08",
-    accent: "#D4A020",
-    surface: "#002410",
-  },
+  { id: "dark",  label: "Malam Emas", emoji: "🌙", bg: "#0D0A00", accent: "#E8C45A" },
+  { id: "pink",  label: "Manis",      emoji: "🌸", bg: "#1A0018", accent: "#FF78B8" },
+  { id: "green", label: "Lebaran",    emoji: "🌿", bg: "#001A08", accent: "#D4A020" },
 ];
+
+const DEFAULT_LEBARAN = [
+  "/memes/lebaran1.jpeg",
+  "/memes/lebaran2.jpeg",
+  "/memes/lebaran3.jpeg",
+  "/memes/lebaran4.jpeg",
+  "/memes/lebaran5.jpeg",
+];
+
+const DEFAULT_THR = [
+  "/memes/thr1.jpeg",
+  "/memes/thr2.jpeg",
+  "/memes/thr3.jpeg",
+  "/memes/thr4.jpeg",
+];
+
+async function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => resolve(new File([blob!], file.name, { type: "image/jpeg" })),
+        "image/jpeg",
+        quality
+      );
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  });
+}
+
+// Slot: null = pakai default, File = custom upload
+type MemeSlot = File | null;
+
+function MemeGrid({
+  slots,
+  defaults,
+  label,
+  onChange,
+}: {
+  slots: MemeSlot[];
+  defaults: string[];
+  label: string;
+  onChange: (idx: number, file: File | null) => void;
+}) {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const compressed = await compressImage(file);
+    onChange(idx, compressed);
+    e.target.value = "";
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <p className="upload-hint" style={{ textAlign: "left", letterSpacing: "0.1em", color: "var(--gold)", fontSize: "10px" }}>
+        {label}
+      </p>
+      <div className="meme-upload-grid">
+        {slots.map((slot, idx) => {
+          const preview = slot ? URL.createObjectURL(slot) : defaults[idx];
+          const isCustom = slot !== null;
+          return (
+            <div className="meme-thumb" key={idx}>
+              <img src={preview} alt={`slot ${idx + 1}`} />
+              {/* Overlay buttons */}
+              <div style={{
+                position: "absolute", inset: 0,
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                gap: "4px",
+                background: "rgba(0,0,0,0.45)",
+                opacity: 0,
+                transition: "opacity 0.2s",
+              }}
+                className="meme-thumb-overlay"
+              >
+                <button
+                  className="meme-action-btn"
+                  onClick={() => inputRefs.current[idx]?.click()}
+                >
+                  ganti
+                </button>
+                {isCustom && (
+                  <button
+                    className="meme-action-btn meme-action-reset"
+                    onClick={() => onChange(idx, null)}
+                  >
+                    reset
+                  </button>
+                )}
+              </div>
+              {isCustom && (
+                <div style={{
+                  position: "absolute", top: 4, left: 4,
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: "var(--gold)",
+                }} />
+              )}
+              <input
+                ref={(el) => { inputRefs.current[idx] = el; }}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => handleChange(e, idx)}
+              />
+            </div>
+          );
+        })}
+      </div>
+      <p className="upload-hint">
+        • = sudah diganti · hover untuk ganti/reset · default tetap dipakai kalau nggak diganti
+      </p>
+    </div>
+  );
+}
 
 export default function GeneratorPage() {
   const [theme, setTheme] = useState<Theme>("dark");
+  const [nama, setNama] = useState("");
+  const [ucapan, setUcapan] = useState("");
   const [qrisFile, setQrisFile] = useState<File | null>(null);
   const [qrisPreview, setQrisPreview] = useState<string | null>(null);
-  const [memeFiles, setMemeFiles] = useState<File[]>([]);
-  const [useMemes, setUseMemes] = useState(false);
+  const [lebaranSlots, setLebaranSlots] = useState<MemeSlot[]>(Array(5).fill(null));
+  const [thrSlots, setThrSlots] = useState<MemeSlot[]>(Array(4).fill(null));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const qrisInputRef = useRef<HTMLInputElement>(null);
-  const memeInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const handleQrisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQrisChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setQrisFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setQrisPreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    const compressed = await compressImage(file, 1200, 0.85);
+    setQrisFile(compressed);
+    setQrisPreview(URL.createObjectURL(compressed));
   };
 
-  const handleMemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setMemeFiles((prev) => [...prev, ...files].slice(0, 9));
-    // reset input so same file can be re-added after removal
-    e.target.value = "";
+  const updateLebaran = (idx: number, file: File | null) => {
+    setLebaranSlots((prev) => { const n = [...prev]; n[idx] = file; return n; });
   };
 
-  const removeMeme = (idx: number) => {
-    setMemeFiles((prev) => prev.filter((_, i) => i !== idx));
+  const updateThr = (idx: number, file: File | null) => {
+    setThrSlots((prev) => { const n = [...prev]; n[idx] = file; return n; });
   };
 
   const handleSubmit = async () => {
@@ -78,14 +177,23 @@ export default function GeneratorPage() {
 
     const fd = new FormData();
     fd.append("theme", theme);
+    fd.append("nama", nama.trim());
+    fd.append("ucapan", ucapan.trim());
     fd.append("qris", qrisFile);
-    if (useMemes) {
-      memeFiles.forEach((f) => fd.append("memes", f));
-    }
+
+    lebaranSlots.forEach((f, i) => {
+      if (f) fd.append(`lebaran_${i}`, f);
+    });
+    thrSlots.forEach((f, i) => {
+      if (f) fd.append(`thr_${i}`, f);
+    });
 
     try {
       const res = await fetch("/api/create", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Gagal generate, coba lagi ya");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Gagal generate, coba lagi ya");
+      }
       const { id } = await res.json();
       router.push(`/thr/${id}`);
     } catch (err: unknown) {
@@ -101,18 +209,14 @@ export default function GeneratorPage() {
       {/* Stars */}
       <div className="stars" aria-hidden>
         {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="star"
-            style={{
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
-              animationDelay: `${(Math.random() * 4).toFixed(1)}s`,
-            }}
-          />
+          <div key={i} className="star" style={{
+            width: `${Math.random() * 2 + 1}px`,
+            height: `${Math.random() * 2 + 1}px`,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDuration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
+            animationDelay: `${(Math.random() * 4).toFixed(1)}s`,
+          }} />
         ))}
       </div>
 
@@ -121,11 +225,10 @@ export default function GeneratorPage() {
         <div className="gen-header">
           <span className="badge">✦ BUAT THR KAMU ✦</span>
           <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: "8px" }}>
-            Bikin Halaman<br />
-            <span className="accent">THR-mu.</span>
+            Bikin Halaman<br /><span className="accent">THR-mu.</span>
           </h1>
           <p className="subtitle">
-            Pilih tema · upload QRIS · share linknya.<br />
+            Pilih tema · tulis ucapan · upload QRIS · share linknya.<br />
             Selesai dalam 30 detik.
           </p>
         </div>
@@ -139,58 +242,54 @@ export default function GeneratorPage() {
                 key={t.id}
                 className={`theme-card ${theme === t.id ? "active" : ""}`}
                 onClick={() => setTheme(t.id)}
-                style={
-                  {
-                    "--t-bg": t.bg,
-                    "--t-accent": t.accent,
-                    "--t-surface": t.surface,
-                  } as React.CSSProperties
-                }
               >
                 <div className="theme-preview" style={{ background: t.bg }}>
-                  <div
-                    className="theme-preview-moon"
-                    style={{
-                      boxShadow: `inset -7px -3px 0 0 ${t.accent}`,
-                    }}
-                  />
-                  <div
-                    className="theme-preview-bar"
-                    style={{ background: t.accent }}
-                  />
-                  <div
-                    className="theme-preview-bar short"
-                    style={{ background: t.accent }}
-                  />
+                  <div className="theme-preview-moon" style={{ boxShadow: `inset -7px -3px 0 0 ${t.accent}` }} />
+                  <div className="theme-preview-bar" style={{ background: t.accent }} />
+                  <div className="theme-preview-bar short" style={{ background: t.accent }} />
                 </div>
-                <p className="theme-label">
-                  {t.emoji} {t.label}
-                </p>
+                <p className="theme-label">{t.emoji} {t.label}</p>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Step 2: QRIS */}
+        {/* Step 2: Nama & Ucapan */}
         <div className="gen-section">
-          <p className="gen-label">02 / Upload QRIS kamu</p>
+          <p className="gen-label">02 / Nama & Ucapan</p>
+          <input
+            className="gen-input"
+            type="text"
+            placeholder="Nama kamu (misal: Tio)"
+            value={nama}
+            maxLength={40}
+            onChange={(e) => setNama(e.target.value)}
+          />
+          <textarea
+            className="gen-textarea"
+            placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"}
+            value={ucapan}
+            maxLength={300}
+            rows={4}
+            onChange={(e) => setUcapan(e.target.value)}
+          />
+          <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
+        </div>
+
+        {/* Step 3: QRIS */}
+        <div className="gen-section">
+          <p className="gen-label">03 / Upload QRIS kamu</p>
           <div
             className={`upload-zone ${qrisPreview ? "has-preview" : ""}`}
             onClick={() => qrisInputRef.current?.click()}
           >
             {qrisPreview ? (
-              <img
-                src={qrisPreview}
-                alt="Preview QRIS"
-                className="upload-preview"
-              />
+              <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" />
             ) : (
               <>
                 <p className="upload-icon">⬆</p>
-                <p className="upload-text">
-                  Screenshot QRIS GoPay / OVO / Dana
-                </p>
-                <p className="upload-hint">jpg · png · webp · maks 5MB</p>
+                <p className="upload-text">Screenshot QRIS GoPay / OVO / Dana</p>
+                <p className="upload-hint">jpg · png · webp · auto-compress</p>
               </>
             )}
           </div>
@@ -202,77 +301,37 @@ export default function GeneratorPage() {
             onChange={handleQrisChange}
           />
           {qrisPreview && (
-            <button
-              className="btn-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setQrisFile(null);
-                setQrisPreview(null);
-                if (qrisInputRef.current) qrisInputRef.current.value = "";
-              }}
-            >
+            <button className="btn-sm" onClick={(e) => {
+              e.stopPropagation();
+              setQrisFile(null);
+              setQrisPreview(null);
+              if (qrisInputRef.current) qrisInputRef.current.value = "";
+            }}>
               ganti foto
             </button>
           )}
         </div>
 
-        {/* Step 3: Memes */}
+        {/* Step 4: Memes */}
         <div className="gen-section">
-          <p className="gen-label">
-            03 / Meme{" "}
-            <span style={{ color: "var(--dim)", textTransform: "none" }}>
-              (opsional)
-            </span>
+          <p className="gen-label">04 / Meme <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
+          <p className="gen-body" style={{ fontSize: "12px" }}>
+            Hover tiap gambar untuk ganti. Default otomatis dipakai kalau nggak diganti.
           </p>
-          <div className="toggle-row">
-            <p className="gen-body">Mau pakai meme sendiri?</p>
-            <button
-              className={`toggle ${!useMemes ? "on" : ""}`}
-              onClick={() => setUseMemes(false)}
-            >
-              Pakai default
-            </button>
-            <button
-              className={`toggle ${useMemes ? "on" : ""}`}
-              onClick={() => setUseMemes(true)}
-            >
-              Upload sendiri
-            </button>
-          </div>
 
-          {useMemes && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div className="meme-upload-grid">
-                {memeFiles.map((f, i) => (
-                  <div className="meme-thumb" key={i}>
-                    <img src={URL.createObjectURL(f)} alt={`meme ${i + 1}`} />
-                    <button className="meme-remove" onClick={() => removeMeme(i)}>
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                {memeFiles.length < 9 && (
-                  <div
-                    className="meme-add"
-                    onClick={() => memeInputRef.current?.click()}
-                  >
-                    +
-                  </div>
-                )}
-              </div>
-              <input
-                ref={memeInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={handleMemeChange}
-              />
-              <p className="upload-hint">
-                {memeFiles.length}/9 gambar · bisa lebaran, lucu-lucu, bebas
-              </p>
-            </div>
-          )}
+          <MemeGrid
+            slots={lebaranSlots}
+            defaults={DEFAULT_LEBARAN}
+            label="MARQUEE LEBARAN (5 gambar)"
+            onChange={updateLebaran}
+          />
+
+          <MemeGrid
+            slots={thrSlots}
+            defaults={DEFAULT_THR}
+            label="MARQUEE MINTA THR (4 gambar)"
+            onChange={updateThr}
+          />
         </div>
 
         {/* Generate */}
@@ -288,9 +347,7 @@ export default function GeneratorPage() {
           >
             {loading ? "generating..." : "Buat halaman THR →"}
           </button>
-          {!qrisFile && (
-            <p className="upload-hint">upload QRIS dulu ya ↑</p>
-          )}
+          {!qrisFile && <p className="upload-hint">upload QRIS dulu ya ↑</p>}
           {error && <p className="gen-error">⚠ {error}</p>}
         </div>
       </div>

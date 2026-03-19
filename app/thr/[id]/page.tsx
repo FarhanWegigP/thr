@@ -1,45 +1,46 @@
-    import { Redis } from "@upstash/redis";
-const kv = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
-    import { notFound } from "next/navigation";
-    import type { Metadata } from "next";
-    import ThrClient from "./client";
+import { Redis } from "@upstash/redis";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import ThrClient from "./client";
 
-    export interface ThrConfig {
-    theme: "dark" | "pink" | "green";
-    qrisUrl: string;
-    memeUrls: string[];
-    createdAt: number;
-    }
+export const dynamic = "force-dynamic";
 
-    // Dynamic metadata per page
-    export async function generateMetadata({
-    params,
-    }: {
-    params: { id: string };
-    }): Promise<Metadata> {
-    return {
-        title: "THR 🌙",
-        description: "ada pesan penting buat kamu...",
-        openGraph: {
-        title: "THR 🌙",
-        description: "ada yang mau disampaiin...",
-        },
-    };
-    }
+export interface ThrConfig {
+  theme: "dark" | "pink" | "green";
+  nama: string;
+  ucapan: string;
+  qrisUrl: string;
+  lebaranUrls: (string | null)[];
+  thrUrls: (string | null)[];
+  createdAt: number;
+}
 
-    export default async function ThrPage({
-    params,
-    }: {
-    params: { id: string };
-    }) {
-    const config = await kv.get<ThrConfig>(`thr:${params.id}`);
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  return {
+    title: "THR 🌙",
+    description: "ada pesan penting buat kamu...",
+    openGraph: {
+      title: "THR 🌙",
+      description: "ada yang mau disampaiin...",
+    },
+  };
+}
 
-    if (!config) {
-        notFound();
-    }
+export default async function ThrPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const kv = Redis.fromEnv();
+  const config = await kv.get<ThrConfig>(`thr:${params.id}`);
 
-    return <ThrClient config={config} />;
-    }
+  if (!config) {
+    notFound();
+  }
+
+  return <ThrClient config={config} />;
+}

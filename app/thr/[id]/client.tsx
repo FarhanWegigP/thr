@@ -2,8 +2,7 @@
 import { useState, useRef } from "react";
 import type { ThrConfig } from "./page";
 
-// Default memes shown when user didn't upload custom ones
-const DEFAULT_MEMES_LEBARAN = [
+const DEFAULT_LEBARAN = [
   "/memes/lebaran1.jpeg",
   "/memes/lebaran2.jpeg",
   "/memes/lebaran3.jpeg",
@@ -11,39 +10,27 @@ const DEFAULT_MEMES_LEBARAN = [
   "/memes/lebaran5.jpeg",
 ];
 
-const DEFAULT_MEMES_THR = [
+const DEFAULT_THR = [
   "/memes/thr1.jpeg",
   "/memes/thr2.jpeg",
   "/memes/thr3.jpeg",
   "/memes/thr4.jpeg",
 ];
 
-function pickMemes(
-  custom: string[],
-  defaults: string[],
-  count: number
-): string[] {
-  if (custom.length === 0) return defaults;
-  // Cycle through custom memes to fill up `count` slots
-  const result: string[] = [];
-  for (let i = 0; i < count; i++) {
-    result.push(custom[i % custom.length]);
-  }
-  return result;
+function resolveMemes(slots: (string | null)[], defaults: string[]): string[] {
+  return slots.map((s, i) => s ?? defaults[i]);
 }
 
 export default function ThrClient({ config }: { config: ThrConfig }) {
   const [step, setStep] = useState<"idle" | "reaction" | "qris">("idle");
   const qrisRef = useRef<HTMLDivElement>(null);
 
-  // Determine memes to use
-  const hasCustomMemes = config.memeUrls.length > 0;
-  const memesLebaran = hasCustomMemes
-    ? pickMemes(config.memeUrls, DEFAULT_MEMES_LEBARAN, 5)
-    : DEFAULT_MEMES_LEBARAN;
-  const memesTHR = hasCustomMemes
-    ? pickMemes(config.memeUrls, DEFAULT_MEMES_THR, 4)
-    : DEFAULT_MEMES_THR;
+  const memesLebaran = resolveMemes(config.lebaranUrls ?? [], DEFAULT_LEBARAN);
+  const memesTHR = resolveMemes(config.thrUrls ?? [], DEFAULT_THR);
+
+  const namaDisplay = config.nama?.trim() || "Tio";
+  const ucapanDisplay = config.ucapan?.trim() ||
+    "Minal Aidzin Wal Faidzin, mohon maaf lahir dan batin 🌙";
 
   const handleReveal = () => setStep("reaction");
 
@@ -76,18 +63,14 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
       {/* Stars */}
       <div className="stars" aria-hidden>
         {Array.from({ length: 40 }).map((_, i) => (
-          <div
-            key={i}
-            className="star"
-            style={{
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
-              animationDelay: `${(Math.random() * 4).toFixed(1)}s`,
-            }}
-          />
+          <div key={i} className="star" style={{
+            width: `${Math.random() * 2 + 1}px`,
+            height: `${Math.random() * 2 + 1}px`,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDuration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
+            animationDelay: `${(Math.random() * 4).toFixed(1)}s`,
+          }} />
         ))}
       </div>
 
@@ -98,24 +81,17 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
             <div className="marquee-outer" style={{ marginBottom: "24px" }}>
               <div className="marquee-track medium">
                 {[...memesTHR, ...memesTHR].map((src, i) => (
-                  <div className="meme-card" key={i}>
-                    <img src={src} alt="meme thr" />
-                  </div>
+                  <div className="meme-card" key={i}><img src={src} alt="meme thr" /></div>
                 ))}
               </div>
             </div>
-
             <p className="reaction-title">omg...</p>
             <p className="reaction-body">
-              mau dikasih THR nih? 🥺
-              <br />
-              serius? beneran?
-              <br />
+              mau dikasih THR nih? 🥺<br />
+              serius? beneran?<br />
               ya udah deh kalau gitu—
             </p>
-            <button className="btn" onClick={handleShowQris}>
-              y &nbsp;→
-            </button>
+            <button className="btn" onClick={handleShowQris}>y &nbsp;→</button>
           </div>
         </div>
       )}
@@ -127,23 +103,28 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
         <div className="marquee-outer">
           <div className="marquee-track slow">
             {[...memesLebaran, ...memesLebaran].map((src, i) => (
-              <div className="meme-card" key={i}>
-                <img src={src} alt="meme lebaran" />
-              </div>
+              <div className="meme-card" key={i}><img src={src} alt="meme lebaran" /></div>
             ))}
           </div>
         </div>
 
         <div className="title-wrap">
           <h1 className="title">
-            Minal Aidzin
-            <br />
+            Minal Aidzin<br />
             <span className="accent">Wal Faidzin.</span>
           </h1>
           <div className="crescent" />
         </div>
 
-        <p className="subtitle">🌙</p>
+        <p className="subtitle">dari {namaDisplay} 🌙</p>
+      </section>
+
+      <div className="divider" />
+
+      {/* Ucapan */}
+      <section className="message">
+        <p className="message-hook">"{ucapanDisplay}"</p>
+        <p className="message-body">— {namaDisplay}</p>
       </section>
 
       <div className="divider" />
@@ -151,9 +132,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
       {/* CTA */}
       {step === "idle" && (
         <section className="cta">
-          <button className="btn" onClick={handleReveal}>
-            kasih THR &nbsp;→
-          </button>
+          <button className="btn" onClick={handleReveal}>kasih THR &nbsp;→</button>
         </section>
       )}
 
@@ -161,15 +140,10 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
       {step === "qris" && (
         <>
           <section className="reaction-section">
-            <div
-              className="marquee-outer"
-              style={{ marginBottom: "32px", marginTop: "40px" }}
-            >
+            <div className="marquee-outer" style={{ marginBottom: "32px", marginTop: "40px" }}>
               <div className="marquee-track medium">
                 {[...memesTHR, ...memesTHR].map((src, i) => (
-                  <div className="meme-card" key={i}>
-                    <img src={src} alt="meme thr" />
-                  </div>
+                  <div className="meme-card" key={i}><img src={src} alt="meme thr" /></div>
                 ))}
               </div>
             </div>
@@ -183,34 +157,21 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
               <div className="qris-frame">
                 <div className="qris-glow" />
                 <div className="qris-img-wrap">
-                  <img
-                    src={config.qrisUrl}
-                    alt="QRIS"
-                    className="qris-img"
-                  />
+                  <img src={config.qrisUrl} alt="QRIS" className="qris-img" />
                 </div>
                 <button className="btn-download" onClick={handleDownload}>
                   ↓ &nbsp; download QRIS
                 </button>
-                <p className="qris-caption">
-                  GoPay · OVO · Dana · Semua Bank
-                </p>
+                <p className="qris-caption">GoPay · OVO · Dana · Semua Bank</p>
               </div>
 
               <div className="tags">
                 {[
-                  "scan dari app manapun",
-                  "langsung masuk",
-                  "auto berkah",
-                  "pahala berlipat",
-                  "makin ganteng",
-                  "makin cantik",
-                  "dosa berkurang",
-                  "rezeki dilancarkan",
+                  "scan dari app manapun", "langsung masuk", "auto berkah",
+                  "pahala berlipat", "makin ganteng", "makin cantik",
+                  "dosa berkurang", "rezeki dilancarkan",
                 ].map((t) => (
-                  <span className="tag" key={t}>
-                    {t}
-                  </span>
+                  <span className="tag" key={t}>{t}</span>
                 ))}
               </div>
             </div>
@@ -220,7 +181,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
             <div className="closing">
               <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
               <p className="closing-title">makasih orang baik</p>
-              <p className="closing-sub">berkah selalu 🌙</p>
+              <p className="closing-sub">berkah selalu — {namaDisplay} 🌙</p>
             </div>
           </section>
         </>

@@ -721,3 +721,53 @@ body {
   color: #ff6b6b;
   letter-spacing: 0.04em;
 }
+
+/* ── GENERATOR: Input & Textarea ── */
+.gen-input,
+.gen-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+
+.gen-input::placeholder,
+.gen-textarea::placeholder {
+  color: var(--dim);
+}
+
+.gen-input:focus,
+.gen-textarea:focus {
+  border-color: var(--gold);
+}
+
+/* ── GENERATOR: Meme slot hover overlay ── */
+.meme-thumb:hover .meme-thumb-overlay {
+  opacity: 1 !important;
+}
+
+.meme-action-btn {
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 0.5px solid #fff;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.meme-action-btn:hover { background: rgba(255,255,255,0.2); }
+
+.meme-action-reset {
+  border-color: var(--gold);
+  color: var(--gold);
+}

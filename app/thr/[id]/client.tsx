@@ -183,6 +183,22 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
               <p className="closing-title">makasih orang baik</p>
               <p className="closing-sub">berkah selalu — {namaDisplay} 🌙</p>
             </div>
+
+            <div className="divider" style={{ margin: "32px 0" }} />
+
+            {/* Viral loop CTA */}
+            <div style={{ padding: "0 28px 64px", display: "flex", flexDirection: "column", gap: 10 }}>
+              <p style={{ fontSize: 10, color: "var(--dim)", letterSpacing: "0.06em" }}>mau bikin yang sama?</p>
+              <p style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 700, fontStyle: "italic", color: "var(--text)", lineHeight: 1.3 }}>
+                Kirim ucapan.<br />
+                <span style={{ color: "var(--gold)" }}>Tunggu transferan.</span>
+              </p>
+              <a href="/" style={{ display: "inline-block", marginTop: 4 }}>
+                <button className="btn" style={{ fontSize: 12, padding: "12px 24px" }}>
+                  bikin ucapanmu sendiri →
+                </button>
+              </a>
+            </div>
           </section>
         </>
       )}

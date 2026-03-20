@@ -78,7 +78,7 @@ function FotoGrid({ slots, defaults, label, onChange }: {
           );
         })}
       </div>
-      <p className="upload-hint">• = sudah diganti · hover untuk ganti/reset</p>
+      <p className="upload-hint">• = sudah diganti · Click untuk ganti/reset</p>
     </div>
   );
 }
@@ -217,7 +217,6 @@ function DevThr() {
             makasih banyak!
           </p>
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-            beneran makasih ya 🌙<br />
             semoga rezekinya balik berlipat-lipat.
           </p>
         </div>
@@ -441,7 +440,7 @@ export default function GeneratorPage() {
 
         <div className="gen-section">
           <p className="gen-label">04 / Upload foto kamu <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
-          <p className="gen-body" style={{ fontSize: 12 }}>Hover tiap gambar untuk ganti. Default dipakai kalau nggak diganti.</p>
+          <p className="gen-body" style={{ fontSize: 12 }}>Click tiap gambar untuk ganti. Default dipakai kalau nggak diganti.</p>
           <FotoGrid slots={lebaranSlots} defaults={DEFAULT_LEBARAN} label="FOTO UCAPAN LEBARAN (5 gambar)" onChange={updateLebaran} />
           <MarqueePreview srcs={liveLebaranMemes} speed="slow" />
           <FotoGrid slots={thrSlots} defaults={DEFAULT_THR} label="FOTO NGEMIS THR 😂 (4 gambar)" onChange={updateThr} />

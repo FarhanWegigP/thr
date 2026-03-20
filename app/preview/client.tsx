@@ -44,7 +44,7 @@ export default function PreviewClient({ config }: { config: Config }) {
   const memesLebaran = resolveMemes(config.lebaranUrls, DEFAULT_LEBARAN);
   const memesTHR = resolveMemes(config.thrUrls, DEFAULT_THR);
   const namaDisplay = config.nama?.trim() || "Tio";
-  const ucapanDisplay = config.ucapan?.trim() || "Mohon maaf lahir batin ya 🌙";
+  const ucapanDisplay = config.ucapan?.trim() || "Mohon maaf lahir batin ya";
 
   return (
     <main className="main" data-theme={config.theme} style={{ minHeight: "100vh" }}>
@@ -96,7 +96,6 @@ export default function PreviewClient({ config }: { config: Config }) {
           </h1>
           <div className="crescent" />
         </div>
-        <p className="subtitle">dari {namaDisplay} 🌙</p>
       </section>
 
       <div className="divider" />
@@ -137,7 +136,7 @@ export default function PreviewClient({ config }: { config: Config }) {
                 <p className="qris-caption">GoPay · OVO · Dana · Semua Bank</p>
               </div>
               <div className="tags">
-                {["scan dari app manapun","auto berkah","pahala berlipat","rezeki dilancarkan"].map(t => (
+                {["auto berkah","pahala berlipat","rezeki dilancarkan"].map(t => (
                   <span className="tag" key={t}>{t}</span>
                 ))}
               </div>
@@ -146,7 +145,7 @@ export default function PreviewClient({ config }: { config: Config }) {
             <div className="closing">
               <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
               <p className="closing-title">makasih orang baik</p>
-              <p className="closing-sub">berkah selalu — {namaDisplay} 🌙</p>
+              <p className="closing-sub">berkah selalu — {namaDisplay}</p>
             </div>
           </section>
         </>

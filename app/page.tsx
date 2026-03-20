@@ -149,7 +149,7 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
                 <p style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 900, lineHeight: 1, color: "var(--text)", flex: 1 }}>Minal Aidzin<br /><span style={{ fontStyle: "italic", color: "var(--gold)" }}>Wal Faidzin.</span></p>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", boxShadow: "inset -9px -3px 0 0 var(--gold)", flexShrink: 0, marginTop: 8 }} />
               </div>
-              <p style={{ fontSize: 8, color: "var(--dim)" }}>dari {namaDisplay} 🌙</p>
+              <p style={{ fontSize: 8, color: "var(--dim)" }}>dari {namaDisplay} </p>
             </div>
             <div className="divider" />
             <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 8 }}>

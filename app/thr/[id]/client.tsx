@@ -160,7 +160,6 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
           <h1 className="title">Minal Aidzin<br /><span className="accent">Wal Faidzin.</span></h1>
           <div className="crescent" />
         </div>
-        <p className="subtitle">dari {namaDisplay} </p>
       </section>
 
       <div className="divider" />

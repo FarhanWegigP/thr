@@ -148,7 +148,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
       )}
 
       <section className="hero">
-        <span className="badge">✦ RAMADHAN 1446 H ✦</span>
+        <span className="badge">✦ RAMADHAN 1447 H ✦</span>
         <div className="marquee-outer">
           <div className="marquee-track slow">
             {[...memesLebaran, ...memesLebaran].map((src, i) => (
@@ -196,7 +196,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
               <p className="qris-body">Nominal bebas. Yang penting ikhlas</p>
               <PaymentInfo config={config} />
               <div className="tags">
-                {["langsung masuk","auto berkah","pahala berlipat","makin ganteng","makin cantik","dosa berkurang","rezeki dilancarkan"].map((t) => (
+                {["auto berkah","pahala berlipat","makin ganteng","makin cantik","dosa berkurang","rezeki dilancarkan"].map((t) => (
                   <span className="tag" key={t}>{t}</span>
                 ))}
               </div>

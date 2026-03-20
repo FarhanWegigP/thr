@@ -143,7 +143,7 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
               </div>
             )}
             <div style={{ padding: "24px 16px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
-              <span style={{ display: "inline-block", padding: "2px 10px", border: "0.5px solid color-mix(in srgb, var(--gold) 30%, transparent)", borderRadius: 100, fontSize: 7, color: "var(--gold)", letterSpacing: "0.1em" }}>✦ RAMADHAN 1446 H ✦</span>
+              <span style={{ display: "inline-block", padding: "2px 10px", border: "0.5px solid color-mix(in srgb, var(--gold) 30%, transparent)", borderRadius: 100, fontSize: 7, color: "var(--gold)", letterSpacing: "0.1em" }}>✦ RAMADHAN 1447 H ✦</span>
               <div className="marquee-outer"><div className="marquee-track slow">{[...lebaranMemes, ...lebaranMemes].map((src, i) => <div className="meme-card" key={i} style={{ width: 80, height: 80 }}><img src={src} alt="" /></div>)}</div></div>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                 <p style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 900, lineHeight: 1, color: "var(--text)", flex: 1 }}>Minal Aidzin<br /><span style={{ fontStyle: "italic", color: "var(--gold)" }}>Wal Faidzin.</span></p>
@@ -380,7 +380,7 @@ export default function GeneratorPage() {
 
       <div className="gen-inner">
         <div className="gen-header">
-          <span className="badge">✦ RAMADHAN 1446 H ✦</span>
+          <span className="badge">✦ RAMADHAN 1447 H ✦</span>
           <div className="title-wrap" style={{ marginTop: 8 }}>
             <h1 className="title" style={{ fontSize: "clamp(26px, 8vw, 40px)" }}>
               Kirim ucapan.<br /><span className="accent">Tunggu transferan.</span>

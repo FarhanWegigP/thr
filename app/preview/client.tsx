@@ -82,7 +82,7 @@ export default function PreviewClient({ config }: { config: Config }) {
       )}
 
       <section className="hero">
-        <span className="badge">✦ RAMADHAN 1446 H ✦</span>
+        <span className="badge">✦ RAMADHAN 1447 H ✦</span>
         <div className="marquee-outer">
           <div className="marquee-track slow">
             {[...memesLebaran, ...memesLebaran].map((src, i) => (

@@ -107,7 +107,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
   const memesLebaran = resolveMemes(config.lebaranUrls ?? [], DEFAULT_LEBARAN);
   const memesTHR = resolveMemes(config.thrUrls ?? [], DEFAULT_THR);
   const namaDisplay = config.nama?.trim() || "Tio";
-  const ucapanDisplay = config.ucapan?.trim() || "Minal Aidzin Wal Faidzin, mohon maaf lahir dan batin 🌙";
+  const ucapanDisplay = config.ucapan?.trim() || "Minal Aidzin Wal Faidzin, mohon maaf lahir dan batin ";
 
   const handleReveal = () => setStep("reaction");
   const handleShowQris = () => {
@@ -160,7 +160,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
           <h1 className="title">Minal Aidzin<br /><span className="accent">Wal Faidzin.</span></h1>
           <div className="crescent" />
         </div>
-        <p className="subtitle">dari {namaDisplay} 🌙</p>
+        <p className="subtitle">dari {namaDisplay} </p>
       </section>
 
       <div className="divider" />
@@ -196,7 +196,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
               <p className="qris-body">Nominal bebas. Yang penting ikhlas</p>
               <PaymentInfo config={config} />
               <div className="tags">
-                {["scan dari app manapun","langsung masuk","auto berkah","pahala berlipat","makin ganteng","makin cantik","dosa berkurang","rezeki dilancarkan"].map((t) => (
+                {["langsung masuk","auto berkah","pahala berlipat","makin ganteng","makin cantik","dosa berkurang","rezeki dilancarkan"].map((t) => (
                   <span className="tag" key={t}>{t}</span>
                 ))}
               </div>
@@ -207,7 +207,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
             <div className="closing">
               <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
               <p className="closing-title">makasih orang baik</p>
-              <p className="closing-sub">berkah selalu — {namaDisplay} 🌙</p>
+              <p className="closing-sub">berkah selalu — {namaDisplay} </p>
             </div>
 
             <div className="divider" style={{ margin: "32px 0" }} />

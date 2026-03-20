@@ -18,6 +18,14 @@ const DEFAULT_THR = [
   "/memes/thr1.jpeg","/memes/thr2.jpeg","/memes/thr3.jpeg","/memes/thr4.jpeg",
 ];
 
+const STARS = Array.from({ length: 30 }, (_, i) => ({
+  w: ((i * 7 + 3) % 20) / 10 + 1,
+  top: ((i * 37 + 11) % 100),
+  left: ((i * 53 + 17) % 100),
+  dur: ((i * 13 + 20) % 30) / 10 + 2,
+  delay: ((i * 19 + 5) % 40) / 10,
+}));
+
 async function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promise<File> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -162,6 +170,62 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
   );
 }
 
+// ── Dev THR section ──
+function DevThr() {
+  const [step, setStep] = useState<"idle" | "qris" | "thanks">("idle");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {step === "idle" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{ fontSize: 10, color: "var(--dim)", letterSpacing: "0.06em" }}>btw...</p>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
+            ini dibuat sama satu orang yang juga lagi nunggu-nunggu THR 🥲
+          </p>
+          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setStep("qris")}>
+            kasih THR ke yang bikin &nbsp;→
+          </button>
+        </div>
+      )}
+
+      {step === "qris" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, animation: "fadeup 0.4s ease both" }}>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
+            makasih udah mau... 🥺<br />nominal bebas, yang penting ikhlas
+          </p>
+          <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14, padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+            <p style={{ fontSize: 9, color: "var(--dim)", letterSpacing: "0.1em" }}>THR UNTUK YANG BIKIN</p>
+            <div style={{ borderRadius: 10, overflow: "hidden", background: "#fff" }}>
+              <img src="/qris.jpeg" alt="QRIS developer" style={{ width: "100%", display: "block" }} />
+            </div>
+            <p style={{ fontSize: 9, color: "var(--dim)", textAlign: "center", letterSpacing: "0.06em" }}>GoPay · OVO · Dana · Semua Bank</p>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn" style={{ flex: 1, textAlign: "center", padding: "12px", fontSize: 12 }} onClick={() => setStep("thanks")}>
+              udah ak tf ✓
+            </button>
+            <button className="btn-sm" style={{ flex: 1, textAlign: "center", padding: "12px" }} onClick={() => setStep("idle")}>
+              gmw ah 😤
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "thanks" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, animation: "fadeup 0.4s ease both" }}>
+          <p style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 700, fontStyle: "italic", color: "var(--gold)", lineHeight: 1.3 }}>
+            makasih banyak!
+          </p>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
+            beneran makasih ya 🌙<br />
+            semoga rezekinya balik berlipat-lipat.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Success screen setelah generate ──
 function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
   nama: string; pageUrl: string; theme: Theme; onBuka: () => void;
@@ -171,19 +235,16 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(pageUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     } catch {
-      // fallback
       const el = document.createElement("textarea");
       el.value = pageUrl;
       document.body.appendChild(el);
       el.select();
       document.execCommand("copy");
       document.body.removeChild(el);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -199,11 +260,10 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <span className="badge">✦ SELESAI ✦</span>
           <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: 8 }}>
-            Ucapanmu<br />
-            <span className="accent">udah jadi. 🌙</span>
+            Ucapanmu<br /><span className="accent">udah jadi. 🌙</span>
           </h1>
           <p className="subtitle">
-            Tinggal share linknya ke siapa aja yang mau kamu mintain THR.
+            Tinggal share linknya ke siapa aja yang mau kamu mintain THR... eh maksudnya mau kamu ucapin.
           </p>
         </div>
 
@@ -211,11 +271,7 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
         <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
           <p style={{ fontSize: 9, color: "var(--dim)", letterSpacing: "0.1em" }}>LINK HALAMAN KAMU</p>
           <p style={{ fontSize: 12, color: "var(--muted)", wordBreak: "break-all", lineHeight: 1.6 }}>{pageUrl}</p>
-          <button
-            onClick={handleCopy}
-            className="btn"
-            style={{ width: "100%", textAlign: "center", padding: "12px", fontSize: 12, transition: "all 0.2s" }}
-          >
+          <button onClick={handleCopy} className="btn" style={{ width: "100%", textAlign: "center", padding: "12px", fontSize: 12 }}>
             {copied ? "✓ link tersalin!" : "salin link"}
           </button>
         </div>
@@ -225,11 +281,7 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
           <button className="btn" style={{ width: "100%", textAlign: "center", padding: "14px" }} onClick={onBuka}>
             buka halaman →
           </button>
-          <button
-            className="btn-sm"
-            style={{ width: "100%", textAlign: "center", padding: "12px" }}
-            onClick={() => window.location.href = "/"}
-          >
+          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => window.location.href = "/"}>
             buat yang baru
           </button>
         </div>
@@ -239,23 +291,19 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
         <div className="closing" style={{ textAlign: "left" }}>
           <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
           <p style={{ fontFamily: "var(--serif)", fontSize: 16, fontStyle: "italic", color: "var(--muted)", lineHeight: 1.8 }}>
-            sebarkan ke semua kontak,<br />
-            semoga THR-nya ngalir deras 🌙
+            sebarin ke semua kenalanmu —<br />silaturahmi terjaga, saldo ikut terjaga.
           </p>
         </div>
+
+        <div className="divider" />
+
+        {/* Dev THR */}
+        <DevThr />
 
       </div>
     </main>
   );
 }
-
-const STARS = Array.from({ length: 30 }, (_, i) => ({
-  w: ((i * 7 + 3) % 20) / 10 + 1,
-  top: ((i * 37 + 11) % 100),
-  left: ((i * 53 + 17) % 100),
-  dur: ((i * 13 + 20) % 30) / 10 + 2,
-  delay: ((i * 19 + 5) % 40) / 10,
-}));
 
 export default function GeneratorPage() {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -311,24 +359,16 @@ export default function GeneratorPage() {
       const res = await fetch("/api/create", { method: "POST", body: fd });
       if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.error || "Gagal generate"); }
       const { id } = await res.json();
-      setDoneId(id); // tampilkan success screen, jangan redirect dulu
+      setDoneId(id);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
     }
   };
 
-  // Kalau udah done, tampilkan success screen
   if (doneId) {
     const pageUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/thr/${doneId}`;
-    return (
-      <SuccessScreen
-        nama={nama}
-        pageUrl={pageUrl}
-        theme={theme}
-        onBuka={() => router.push(`/thr/${doneId}`)}
-      />
-    );
+    return <SuccessScreen nama={nama} pageUrl={pageUrl} theme={theme} onBuka={() => router.push(`/thr/${doneId}`)} />;
   }
 
   const currentTheme = THEMES.find((t) => t.id === theme)!;
@@ -349,21 +389,17 @@ export default function GeneratorPage() {
       )}
 
       <div className="gen-inner">
-
-        {/* Header */}
         <div className="gen-header">
           <span className="badge">✦ RAMADHAN 1446 H ✦</span>
           <div className="title-wrap" style={{ marginTop: 8 }}>
             <h1 className="title" style={{ fontSize: "clamp(26px, 8vw, 40px)" }}>
-              Kirim ucapan.<br />
-              <span className="accent">Tunggu transferan.</span>
+              Kirim ucapan.<br /><span className="accent">Tunggu transferan.</span>
             </h1>
             <div className="crescent" style={{ width: 48, height: 48, marginTop: 12 }} />
           </div>
           <p className="subtitle">Pilih tema · tulis ucapan · upload QRIS · share linknya.</p>
         </div>
 
-        {/* 01 Tema */}
         <div className="gen-section">
           <p className="gen-label">01 / Tema</p>
           <div className="theme-grid">
@@ -380,50 +416,29 @@ export default function GeneratorPage() {
           </div>
         </div>
 
-        {/* 02 Nama & Ucapan */}
         <div className="gen-section">
           <p className="gen-label">02 / Nama & Ucapan</p>
           <div>
-            <input
-              ref={namaRef}
-              className="gen-input"
-              type="text"
-              placeholder="Nama kamu — wajib diisi"
-              value={nama}
-              maxLength={40}
+            <input ref={namaRef} className="gen-input" type="text" placeholder="Nama kamu — wajib diisi" value={nama} maxLength={40}
               onChange={(e) => { setNama(e.target.value); if (e.target.value.trim()) setNamaError(false); }}
-              style={{ borderColor: namaError ? "#ff6b6b" : undefined }}
-            />
+              style={{ borderColor: namaError ? "#ff6b6b" : undefined }} />
             {namaError && <p style={{ fontSize: 10, color: "#ff6b6b", marginTop: 4, letterSpacing: "0.04em" }}>⚠ nama wajib diisi dulu</p>}
           </div>
-          <textarea
-            className="gen-textarea"
-            placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"}
-            value={ucapan}
-            maxLength={300}
-            rows={4}
-            onChange={(e) => setUcapan(e.target.value)}
-          />
+          <textarea className="gen-textarea" placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"} value={ucapan} maxLength={300} rows={4} onChange={(e) => setUcapan(e.target.value)} />
           <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
         </div>
 
-        {/* 03 QRIS */}
         <div className="gen-section">
           <p className="gen-label">03 / Upload QRIS kamu</p>
           <div className={`upload-zone ${qrisPreview ? "has-preview" : ""}`} onClick={() => qrisInputRef.current?.click()}>
-            {qrisPreview ? (
-              <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" />
-            ) : (
+            {qrisPreview ? <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" /> : (
               <><p className="upload-icon">⬆</p><p className="upload-text">Screenshot QRIS GoPay / OVO / Dana</p><p className="upload-hint">jpg · png · webp · auto-compress</p></>
             )}
           </div>
           <input ref={qrisInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleQrisChange} />
-          {qrisPreview && (
-            <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>ganti foto</button>
-          )}
+          {qrisPreview && <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>ganti foto</button>}
         </div>
 
-        {/* 04 Foto */}
         <div className="gen-section">
           <p className="gen-label">04 / Upload foto kamu <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
           <p className="gen-body" style={{ fontSize: 12 }}>Hover tiap gambar untuk ganti. Default dipakai kalau nggak diganti.</p>
@@ -433,24 +448,18 @@ export default function GeneratorPage() {
           <MarqueePreview srcs={liveThrMemes} speed="medium" />
         </div>
 
-        {/* Generate */}
         <div className="gen-section">
           <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setShowPreview(true)}>
             👁 lihat tampilan dulu
           </button>
-          <button
-            className={`btn gen-btn ${!canSubmit ? "disabled" : ""}`}
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            style={{ borderColor: canSubmit ? currentTheme.accent : undefined, color: canSubmit ? currentTheme.accent : undefined }}
-          >
+          <button className={`btn gen-btn ${!canSubmit ? "disabled" : ""}`} onClick={handleSubmit} disabled={!canSubmit}
+            style={{ borderColor: canSubmit ? currentTheme.accent : undefined, color: canSubmit ? currentTheme.accent : undefined }}>
             {loading ? "generating..." : "Buat halaman THR →"}
           </button>
           {!nama.trim() && <p className="upload-hint">isi nama dulu ya ↑</p>}
           {nama.trim() && !qrisFile && <p className="upload-hint">upload QRIS dulu ya ↑</p>}
           {error && <p className="gen-error">⚠ {error}</p>}
         </div>
-
       </div>
     </main>
   );

@@ -103,14 +103,23 @@ function MarqueePreview({ srcs, speed }: { srcs: string[]; speed: "slow" | "medi
   );
 }
 
-function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, onClose }: {
+function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, onClose,
+  paymentMethod, ewalletType, ewalletNumber, ewalletName, bankName, accountNumber, accountName }: {
   theme: Theme; nama: string; ucapan: string; qrisPreview: string | null;
   lebaranMemes: string[]; thrMemes: string[]; onClose: () => void;
+  paymentMethod: PaymentMethod;
+  ewalletType: string; ewalletNumber: string; ewalletName: string;
+  bankName: string; accountNumber: string; accountName: string;
 }) {
   const [step, setStep] = useState<"idle" | "reaction" | "qris">("idle");
+  const [copied, setCopied] = useState(false);
   const namaDisplay = nama.trim() || "Tio";
   const ucapanDisplay = ucapan.trim() || "Mohon maaf lahir batin ya 🌙";
   const qrisSrc = qrisPreview || "/qris.jpeg";
+  const handleCopy = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); } catch {}
+    setCopied(true); setTimeout(() => setCopied(false), 2000);
+  };
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, animation: "fadeup 0.3s ease both" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: 340, padding: "0 16px" }}>
@@ -153,9 +162,30 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
               <div style={{ padding: "0 16px 32px", display: "flex", flexDirection: "column", gap: 10 }}>
                 <div className="marquee-outer" style={{ margin: "16px 0 8px" }}><div className="marquee-track medium">{[...thrMemes, ...thrMemes].map((src, i) => <div className="meme-card" key={i} style={{ width: 80, height: 80 }}><img src={src} alt="" /></div>)}</div></div>
                 <p style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 700, color: "var(--text)" }}>Yeay dapet thr</p>
-                <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: 10 }}>
-                  <div style={{ borderRadius: 8, overflow: "hidden", background: "#fff" }}><img src={qrisSrc} alt="QRIS" style={{ width: "100%", display: "block" }} /></div>
-                </div>
+                {/* Payment preview */}
+                {paymentMethod === "qris" && (
+                  <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: 10 }}>
+                    <div style={{ borderRadius: 8, overflow: "hidden", background: "#fff" }}><img src={qrisSrc} alt="QRIS" style={{ width: "100%", display: "block" }} /></div>
+                  </div>
+                )}
+                {paymentMethod === "ewallet" && (
+                  <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <p style={{ fontSize: 8, color: "var(--dim)", letterSpacing: "0.1em" }}>{ewalletType.toUpperCase()}</p>
+                    <p style={{ fontSize: 18, color: "var(--text)", letterSpacing: "0.08em" }}>{ewalletNumber || "—"}</p>
+                    {ewalletName && <p style={{ fontSize: 9, color: "var(--muted)" }}>a.n. {ewalletName}</p>}
+                    <button style={{ marginTop: 4, padding: "6px", borderRadius: 8, border: "0.5px solid var(--border)", background: "transparent", color: "var(--gold)", fontSize: 9, fontFamily: "var(--mono)", cursor: "pointer" }}
+                      onClick={() => handleCopy(ewalletNumber)}>{copied ? "✓ tersalin!" : "salin nomor"}</button>
+                  </div>
+                )}
+                {paymentMethod === "rekening" && (
+                  <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <p style={{ fontSize: 8, color: "var(--dim)", letterSpacing: "0.1em" }}>{bankName || "BANK"}</p>
+                    <p style={{ fontSize: 18, color: "var(--text)", letterSpacing: "0.08em" }}>{accountNumber || "—"}</p>
+                    {accountName && <p style={{ fontSize: 9, color: "var(--muted)" }}>a.n. {accountName}</p>}
+                    <button style={{ marginTop: 4, padding: "6px", borderRadius: 8, border: "0.5px solid var(--border)", background: "transparent", color: "var(--gold)", fontSize: 9, fontFamily: "var(--mono)", cursor: "pointer" }}
+                      onClick={() => handleCopy(accountNumber)}>{copied ? "✓ tersalin!" : "salin nomor rekening"}</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -342,7 +372,10 @@ export default function GeneratorPage() {
       {showPreview && (
         <ThrPreview theme={theme} nama={nama} ucapan={ucapan} qrisPreview={qrisPreview}
           lebaranMemes={liveLebaranMemes} thrMemes={liveThrMemes}
-          onClose={() => setShowPreview(false)} />
+          onClose={() => setShowPreview(false)}
+          paymentMethod={paymentMethod}
+          ewalletType={ewalletType} ewalletNumber={ewalletNumber} ewalletName={ewalletName}
+          bankName={bankName} accountNumber={accountNumber} accountName={accountName} />
       )}
 
       <div className="gen-inner">

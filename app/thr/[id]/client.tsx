@@ -116,7 +116,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
           <div className="crescent" />
         </div>
 
-        <p className="subtitle">dari {namaDisplay} 🌙</p>
+        <p className="subtitle">dari {namaDisplay}</p>
       </section>
 
       <div className="divider" />
@@ -181,7 +181,7 @@ export default function ThrClient({ config }: { config: ThrConfig }) {
             <div className="closing">
               <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
               <p className="closing-title">makasih orang baik</p>
-              <p className="closing-sub">berkah selalu — {namaDisplay} 🌙</p>
+              <p className="closing-sub">berkah selalu — {namaDisplay} </p>
             </div>
 
             <div className="divider" style={{ margin: "32px 0" }} />

@@ -259,7 +259,7 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <span className="badge">✦ SELESAI ✦</span>
           <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: 8 }}>
-            Ucapanmu<br /><span className="accent">udah jadi. 🌙</span>
+            Ucapanmu<br /><span className="accent">udah jadi.</span>
           </h1>
           <p className="subtitle">
             Tinggal share linknya ke siapa aja yang mau kamu mintain THR... eh maksudnya mau kamu ucapin.

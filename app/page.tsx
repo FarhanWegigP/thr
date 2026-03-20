@@ -422,7 +422,7 @@ export default function GeneratorPage() {
 
         {/* 03 Metode Pembayaran */}
         <div className="gen-section">
-          <p className="gen-label">03 / Metode Pembayaran</p>
+          <p className="gen-label">03 / THRnya mau dikirim kemana? </p>
 
           {/* Pilih metode */}
           <div className="toggle-row">

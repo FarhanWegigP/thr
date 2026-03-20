@@ -5,42 +5,36 @@ import ThrClient from "./client";
 
 export const dynamic = "force-dynamic";
 
+export type PaymentMethod = "qris" | "ewallet" | "rekening";
+
 export interface ThrConfig {
   theme: "dark" | "pink" | "green";
   nama: string;
   ucapan: string;
-  qrisUrl: string;
+  paymentMethod: PaymentMethod;
+  qrisUrl?: string;
+  ewalletType?: string;
+  ewalletNumber?: string;
+  ewalletName?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
   lebaranUrls: (string | null)[];
   thrUrls: (string | null)[];
   createdAt: number;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   return {
     title: "THR 🌙",
     description: "ada pesan penting buat kamu...",
-    openGraph: {
-      title: "THR 🌙",
-      description: "ada yang mau disampaiin...",
-    },
+    openGraph: { title: "THR 🌙", description: "ada yang mau disampaiin..." },
   };
 }
 
-export default async function ThrPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ThrPage({ params }: { params: { id: string } }) {
   const kv = Redis.fromEnv();
   const config = await kv.get<ThrConfig>(`thr:${params.id}`);
-
-  if (!config) {
-    notFound();
-  }
-
+  if (!config) notFound();
   return <ThrClient config={config} />;
 }

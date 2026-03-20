@@ -3,12 +3,15 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 type Theme = "dark" | "pink" | "green";
+type PaymentMethod = "qris" | "ewallet" | "rekening";
 
 const THEMES: { id: Theme; label: string; bg: string; accent: string }[] = [
   { id: "dark",  label: "Dark",  bg: "#0D0A00", accent: "#E8C45A" },
   { id: "pink",  label: "Pink",  bg: "#1A0018", accent: "#FF78B8" },
   { id: "green", label: "Green", bg: "#001A08", accent: "#D4A020" },
 ];
+
+const EWALLET_OPTIONS = ["GoPay", "OVO", "Dana", "ShopeePay", "LinkAja"];
 
 const DEFAULT_LEBARAN = [
   "/memes/lebaran1.jpeg","/memes/lebaran2.jpeg","/memes/lebaran3.jpeg",
@@ -108,7 +111,6 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
   const namaDisplay = nama.trim() || "Tio";
   const ucapanDisplay = ucapan.trim() || "Mohon maaf lahir batin ya 🌙";
   const qrisSrc = qrisPreview || "/qris.jpeg";
-
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, animation: "fadeup 0.3s ease both" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: 340, padding: "0 16px" }}>
@@ -151,14 +153,8 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
               <div style={{ padding: "0 16px 32px", display: "flex", flexDirection: "column", gap: 10 }}>
                 <div className="marquee-outer" style={{ margin: "16px 0 8px" }}><div className="marquee-track medium">{[...thrMemes, ...thrMemes].map((src, i) => <div className="meme-card" key={i} style={{ width: 80, height: 80 }}><img src={src} alt="" /></div>)}</div></div>
                 <p style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 700, color: "var(--text)" }}>Yeay dapet thr</p>
-                <p style={{ fontSize: 9, color: "var(--muted)" }}>Nominal bebas. Yang penting ikhlas</p>
                 <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: 10 }}>
                   <div style={{ borderRadius: 8, overflow: "hidden", background: "#fff" }}><img src={qrisSrc} alt="QRIS" style={{ width: "100%", display: "block" }} /></div>
-                  <p style={{ fontSize: 7, color: "var(--dim)", textAlign: "center", marginTop: 6 }}>GoPay · OVO · Dana · Semua Bank</p>
-                </div>
-                <div style={{ textAlign: "center", paddingTop: 12 }}>
-                  <p style={{ fontFamily: "var(--serif)", fontSize: 16, fontStyle: "italic", color: "var(--text)" }}>makasih orang baik</p>
-                  <p style={{ fontSize: 8, color: "var(--dim)", marginTop: 4 }}>berkah selalu — {namaDisplay} 🌙</p>
                 </div>
               </div>
             )}
@@ -170,29 +166,20 @@ function ThrPreview({ theme, nama, ucapan, qrisPreview, lebaranMemes, thrMemes, 
   );
 }
 
-// ── Dev THR section ──
 function DevThr() {
   const [step, setStep] = useState<"idle" | "qris" | "thanks">("idle");
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {step === "idle" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <p style={{ fontSize: 10, color: "var(--dim)", letterSpacing: "0.06em" }}>btw...</p>
-          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-            ini dibuat sama satu orang yang juga lagi nunggu-nunggu THR 🥲
-          </p>
-          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setStep("qris")}>
-            kasih THR ke yang bikin &nbsp;→
-          </button>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>ini dibuat sama satu orang yang juga lagi nunggu-nunggu THR 🥲</p>
+          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setStep("qris")}>kasih THR ke yang bikin &nbsp;→</button>
         </div>
       )}
-
       {step === "qris" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14, animation: "fadeup 0.4s ease both" }}>
-          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-            makasih udah mau... 🥺<br />nominal bebas, yang penting ikhlas
-          </p>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>makasih udah mau... 🥺<br />nominal bebas, yang penting ikhlas</p>
           <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14, padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
             <p style={{ fontSize: 9, color: "var(--dim)", letterSpacing: "0.1em" }}>THR UNTUK YANG BIKIN</p>
             <div style={{ borderRadius: 10, overflow: "hidden", background: "#fff" }}>
@@ -201,72 +188,39 @@ function DevThr() {
             <p style={{ fontSize: 9, color: "var(--dim)", textAlign: "center", letterSpacing: "0.06em" }}>GoPay · OVO · Dana · Semua Bank</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn" style={{ flex: 1, textAlign: "center", padding: "12px", fontSize: 12 }} onClick={() => setStep("thanks")}>
-              udah ak tf ✓
-            </button>
-            <button className="btn-sm" style={{ flex: 1, textAlign: "center", padding: "12px" }} onClick={() => setStep("idle")}>
-              gmw ah 😤
-            </button>
+            <button className="btn" style={{ flex: 1, textAlign: "center", padding: "12px", fontSize: 12 }} onClick={() => setStep("thanks")}>udah ak tf ✓</button>
+            <button className="btn-sm" style={{ flex: 1, textAlign: "center", padding: "12px" }} onClick={() => setStep("idle")}>gmw ah 😤</button>
           </div>
         </div>
       )}
-
       {step === "thanks" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, animation: "fadeup 0.4s ease both" }}>
-          <p style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 700, fontStyle: "italic", color: "var(--gold)", lineHeight: 1.3 }}>
-            makasih banyak!
-          </p>
-          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-            semoga rezekinya balik berlipat-lipat.
-          </p>
+          <p style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 700, fontStyle: "italic", color: "var(--gold)", lineHeight: 1.3 }}>makasih banyak!</p>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>beneran makasih ya 🌙<br />semoga rezekinya balik berlipat-lipat.</p>
         </div>
       )}
     </div>
   );
 }
 
-// ── Success screen setelah generate ──
-function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
-  nama: string; pageUrl: string; theme: Theme; onBuka: () => void;
-}) {
+function SuccessScreen({ pageUrl, theme, onBuka }: { pageUrl: string; theme: Theme; onBuka: () => void }) {
   const [copied, setCopied] = useState(false);
-
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(pageUrl);
-    } catch {
-      const el = document.createElement("textarea");
-      el.value = pageUrl;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
+    try { await navigator.clipboard.writeText(pageUrl); } catch {
+      const el = document.createElement("textarea"); el.value = pageUrl;
+      document.body.appendChild(el); el.select(); document.execCommand("copy"); document.body.removeChild(el);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setCopied(true); setTimeout(() => setCopied(false), 2500);
   };
-
   return (
     <main className="main" data-theme={theme}>
-      <div className="stars" aria-hidden>
-        {STARS.map((s, i) => (
-          <div key={i} className="star" style={{ width: `${s.w}px`, height: `${s.w}px`, top: `${s.top}%`, left: `${s.left}%`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
-        ))}
-      </div>
-
+      <div className="stars" aria-hidden>{STARS.map((s, i) => <div key={i} className="star" style={{ width: `${s.w}px`, height: `${s.w}px`, top: `${s.top}%`, left: `${s.left}%`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />)}</div>
       <div style={{ position: "relative", zIndex: 1, padding: "64px 28px 80px", display: "flex", flexDirection: "column", gap: 28, maxWidth: 480, margin: "0 auto" }}>
-
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <span className="badge">✦ SELESAI ✦</span>
-          <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: 8 }}>
-            Ucapanmu<br /><span className="accent">udah jadi.</span>
-          </h1>
-          <p className="subtitle">
-            Tinggal share linknya ke siapa aja yang mau kamu mintain THR... eh maksudnya mau kamu ucapin.
-          </p>
+          <h1 className="title" style={{ fontSize: "clamp(28px, 9vw, 44px)", marginTop: 8 }}>Ucapanmu<br /><span className="accent">udah jadi. 🌙</span></h1>
+          <p className="subtitle">Tinggal share linknya ke siapa aja yang mau kamu mintain THR... eh maksudnya mau kamu ucapin.</p>
         </div>
-
-        {/* Link box */}
         <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
           <p style={{ fontSize: 9, color: "var(--dim)", letterSpacing: "0.1em" }}>LINK HALAMAN KAMU</p>
           <p style={{ fontSize: 12, color: "var(--muted)", wordBreak: "break-all", lineHeight: 1.6 }}>{pageUrl}</p>
@@ -274,31 +228,19 @@ function SuccessScreen({ nama, pageUrl, theme, onBuka }: {
             {copied ? "✓ link tersalin!" : "salin link"}
           </button>
         </div>
-
-        {/* Actions */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <button className="btn" style={{ width: "100%", textAlign: "center", padding: "14px" }} onClick={onBuka}>
-            buka halaman →
-          </button>
-          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => window.location.href = "/"}>
-            buat yang baru
-          </button>
+          <button className="btn" style={{ width: "100%", textAlign: "center", padding: "14px" }} onClick={onBuka}>buka halaman →</button>
+          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => window.location.href = "/"}>buat yang baru</button>
         </div>
-
         <div className="divider" />
-
         <div className="closing" style={{ textAlign: "left" }}>
           <p className="ornament">✦ &nbsp; ✦ &nbsp; ✦</p>
           <p style={{ fontFamily: "var(--serif)", fontSize: 16, fontStyle: "italic", color: "var(--muted)", lineHeight: 1.8 }}>
             sebarin ke semua kenalanmu —<br />silaturahmi terjaga, saldo ikut terjaga.
           </p>
         </div>
-
         <div className="divider" />
-
-        {/* Dev THR */}
         <DevThr />
-
       </div>
     </main>
   );
@@ -309,8 +251,19 @@ export default function GeneratorPage() {
   const [nama, setNama] = useState("");
   const [namaError, setNamaError] = useState(false);
   const [ucapan, setUcapan] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("qris");
+  // QRIS
   const [qrisFile, setQrisFile] = useState<File | null>(null);
   const [qrisPreview, setQrisPreview] = useState<string | null>(null);
+  // E-wallet
+  const [ewalletType, setEwalletType] = useState("GoPay");
+  const [ewalletNumber, setEwalletNumber] = useState("");
+  const [ewalletName, setEwalletName] = useState("");
+  // Rekening
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountName, setAccountName] = useState("");
+  // Memes
   const [lebaranSlots, setLebaranSlots] = useState<MemeSlot[]>(Array(5).fill(null));
   const [thrSlots, setThrSlots] = useState<MemeSlot[]>(Array(4).fill(null));
   const [loading, setLoading] = useState(false);
@@ -328,30 +281,37 @@ export default function GeneratorPage() {
   const handleQrisChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const compressed = await compressImage(file, 1200, 0.85);
-    setQrisFile(compressed);
-    setQrisPreview(URL.createObjectURL(compressed));
+    setQrisFile(await compressImage(file, 1200, 0.85));
+    setQrisPreview(URL.createObjectURL(file));
   };
 
-  const updateLebaran = (idx: number, file: File | null) =>
-    setLebaranSlots((prev) => { const n = [...prev]; n[idx] = file; return n; });
-  const updateThr = (idx: number, file: File | null) =>
-    setThrSlots((prev) => { const n = [...prev]; n[idx] = file; return n; });
+  const paymentValid = () => {
+    if (paymentMethod === "qris") return !!qrisFile;
+    if (paymentMethod === "ewallet") return !!ewalletNumber.trim();
+    if (paymentMethod === "rekening") return !!accountNumber.trim();
+    return false;
+  };
 
   const handleSubmit = async () => {
-    if (!nama.trim()) {
-      setNamaError(true);
-      namaRef.current?.focus();
-      return;
-    }
-    if (!qrisFile || loading) return;
-    setLoading(true);
-    setError(null);
+    if (!nama.trim()) { setNamaError(true); namaRef.current?.focus(); return; }
+    if (!paymentValid() || loading) return;
+    setLoading(true); setError(null);
     const fd = new FormData();
     fd.append("theme", theme);
     fd.append("nama", nama.trim());
     fd.append("ucapan", ucapan.trim());
-    fd.append("qris", qrisFile);
+    fd.append("paymentMethod", paymentMethod);
+    if (paymentMethod === "qris" && qrisFile) fd.append("qris", qrisFile);
+    if (paymentMethod === "ewallet") {
+      fd.append("ewalletType", ewalletType);
+      fd.append("ewalletNumber", ewalletNumber.trim());
+      fd.append("ewalletName", ewalletName.trim());
+    }
+    if (paymentMethod === "rekening") {
+      fd.append("bankName", bankName.trim());
+      fd.append("accountNumber", accountNumber.trim());
+      fd.append("accountName", accountName.trim());
+    }
     lebaranSlots.forEach((f, i) => { if (f) fd.append(`lebaran_${i}`, f); });
     thrSlots.forEach((f, i) => { if (f) fd.append(`thr_${i}`, f); });
     try {
@@ -367,18 +327,16 @@ export default function GeneratorPage() {
 
   if (doneId) {
     const pageUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/thr/${doneId}`;
-    return <SuccessScreen nama={nama} pageUrl={pageUrl} theme={theme} onBuka={() => router.push(`/thr/${doneId}`)} />;
+    return <SuccessScreen pageUrl={pageUrl} theme={theme} onBuka={() => router.push(`/thr/${doneId}`)} />;
   }
 
   const currentTheme = THEMES.find((t) => t.id === theme)!;
-  const canSubmit = !!nama.trim() && !!qrisFile && !loading;
+  const canSubmit = !!nama.trim() && paymentValid() && !loading;
 
   return (
     <main className="main" data-theme={theme}>
       <div className="stars" aria-hidden>
-        {STARS.map((s, i) => (
-          <div key={i} className="star" style={{ width: `${s.w}px`, height: `${s.w}px`, top: `${s.top}%`, left: `${s.left}%`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
-        ))}
+        {STARS.map((s, i) => <div key={i} className="star" style={{ width: `${s.w}px`, height: `${s.w}px`, top: `${s.top}%`, left: `${s.left}%`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />)}
       </div>
 
       {showPreview && (
@@ -399,6 +357,7 @@ export default function GeneratorPage() {
           <p className="subtitle">Pilih tema · tulis ucapan · upload QRIS · share linknya.</p>
         </div>
 
+        {/* 01 Tema */}
         <div className="gen-section">
           <p className="gen-label">01 / Tema</p>
           <div className="theme-grid">
@@ -415,6 +374,7 @@ export default function GeneratorPage() {
           </div>
         </div>
 
+        {/* 02 Nama & Ucapan */}
         <div className="gen-section">
           <p className="gen-label">02 / Nama & Ucapan</p>
           <div>
@@ -427,36 +387,74 @@ export default function GeneratorPage() {
           <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
         </div>
 
+        {/* 03 Metode Pembayaran */}
         <div className="gen-section">
-          <p className="gen-label">03 / Upload QRIS kamu</p>
-          <div className={`upload-zone ${qrisPreview ? "has-preview" : ""}`} onClick={() => qrisInputRef.current?.click()}>
-            {qrisPreview ? <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" /> : (
-              <><p className="upload-icon">⬆</p><p className="upload-text">Screenshot QRIS GoPay / OVO / Dana</p><p className="upload-hint">jpg · png · webp · auto-compress</p></>
-            )}
+          <p className="gen-label">03 / Metode Pembayaran</p>
+
+          {/* Pilih metode */}
+          <div className="toggle-row">
+            {(["qris", "ewallet", "rekening"] as PaymentMethod[]).map((m) => (
+              <button key={m} className={`toggle ${paymentMethod === m ? "on" : ""}`} onClick={() => setPaymentMethod(m)}>
+                {m === "qris" ? "QRIS" : m === "ewallet" ? "GoPay / OVO / Dana" : "Rekening Bank"}
+              </button>
+            ))}
           </div>
-          <input ref={qrisInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleQrisChange} />
-          {qrisPreview && <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>ganti foto</button>}
+
+          {/* QRIS */}
+          {paymentMethod === "qris" && (
+            <>
+              <div className={`upload-zone ${qrisPreview ? "has-preview" : ""}`} onClick={() => qrisInputRef.current?.click()}>
+                {qrisPreview ? <img src={qrisPreview} alt="Preview QRIS" className="upload-preview" /> : (
+                  <><p className="upload-icon">⬆</p><p className="upload-text">Screenshot QRIS kamu</p><p className="upload-hint">jpg · png · webp · auto-compress</p></>
+                )}
+              </div>
+              <input ref={qrisInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleQrisChange} />
+              {qrisPreview && <button className="btn-sm" onClick={(e) => { e.stopPropagation(); setQrisFile(null); setQrisPreview(null); if (qrisInputRef.current) qrisInputRef.current.value = ""; }}>ganti foto</button>}
+            </>
+          )}
+
+          {/* E-wallet */}
+          {paymentMethod === "ewallet" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="toggle-row">
+                {EWALLET_OPTIONS.map((o) => (
+                  <button key={o} className={`toggle ${ewalletType === o ? "on" : ""}`} onClick={() => setEwalletType(o)}>{o}</button>
+                ))}
+              </div>
+              <input className="gen-input" type="tel" placeholder={`Nomor ${ewalletType} — wajib`} value={ewalletNumber} onChange={(e) => setEwalletNumber(e.target.value)} />
+              <input className="gen-input" type="text" placeholder="Nama pemilik (opsional)" value={ewalletName} onChange={(e) => setEwalletName(e.target.value)} />
+            </div>
+          )}
+
+          {/* Rekening */}
+          {paymentMethod === "rekening" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <input className="gen-input" type="text" placeholder="Nama bank (misal: BCA, BRI, Mandiri)" value={bankName} onChange={(e) => setBankName(e.target.value)} />
+              <input className="gen-input" type="tel" placeholder="Nomor rekening — wajib" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
+              <input className="gen-input" type="text" placeholder="Nama pemilik rekening" value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+            </div>
+          )}
         </div>
 
+        {/* 04 Foto */}
         <div className="gen-section">
           <p className="gen-label">04 / Upload foto kamu <span style={{ color: "var(--dim)", textTransform: "none" }}>(opsional)</span></p>
           <p className="gen-body" style={{ fontSize: 12 }}>Click tiap gambar untuk ganti. Default dipakai kalau nggak diganti.</p>
-          <FotoGrid slots={lebaranSlots} defaults={DEFAULT_LEBARAN} label="FOTO UCAPAN LEBARAN (5 gambar)" onChange={updateLebaran} />
+          <FotoGrid slots={lebaranSlots} defaults={DEFAULT_LEBARAN} label="FOTO UCAPAN LEBARAN (5 gambar)" onChange={(i, f) => setLebaranSlots((prev) => { const n = [...prev]; n[i] = f; return n; })} />
           <MarqueePreview srcs={liveLebaranMemes} speed="slow" />
-          <FotoGrid slots={thrSlots} defaults={DEFAULT_THR} label="FOTO NGEMIS THR 😂 (4 gambar)" onChange={updateThr} />
+          <FotoGrid slots={thrSlots} defaults={DEFAULT_THR} label="FOTO NGEMIS THR 😂 (4 gambar)" onChange={(i, f) => setThrSlots((prev) => { const n = [...prev]; n[i] = f; return n; })} />
           <MarqueePreview srcs={liveThrMemes} speed="medium" />
         </div>
 
+        {/* Generate */}
         <div className="gen-section">
-          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setShowPreview(true)}>
-            👁 lihat tampilan dulu
-          </button>
+          <button className="btn-sm" style={{ width: "100%", textAlign: "center", padding: "12px" }} onClick={() => setShowPreview(true)}>👁 lihat tampilan dulu</button>
           <button className={`btn gen-btn ${!canSubmit ? "disabled" : ""}`} onClick={handleSubmit} disabled={!canSubmit}
             style={{ borderColor: canSubmit ? currentTheme.accent : undefined, color: canSubmit ? currentTheme.accent : undefined }}>
             {loading ? "generating..." : "Buat halaman THR →"}
           </button>
           {!nama.trim() && <p className="upload-hint">isi nama dulu ya ↑</p>}
-          {nama.trim() && !qrisFile && <p className="upload-hint">upload QRIS dulu ya ↑</p>}
+          {nama.trim() && !paymentValid() && <p className="upload-hint">isi info pembayaran dulu ya ↑</p>}
           {error && <p className="gen-error">⚠ {error}</p>}
         </div>
       </div>

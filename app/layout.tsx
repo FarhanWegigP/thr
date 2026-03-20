@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "THR dari Tio 🌙",
-  description: "ada pesan penting dari Tio buat kamu...",
+  title: "Buat Ucapanmu ",
   openGraph: {
-    title: "THR dari Tio 🌙",
-    description: "ada yang mau Tio sampein...",
+    title: "Ucapan Lebaran ",
+    description: "ada ucapan lebaran buat kamu...",
   },
 };
 

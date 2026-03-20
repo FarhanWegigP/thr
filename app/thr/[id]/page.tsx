@@ -26,9 +26,9 @@ export interface ThrConfig {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   return {
-    title: "THR 🌙",
+    title: "Ucapan Lebaran",
     description: "ada pesan penting buat kamu...",
-    openGraph: { title: "THR 🌙", description: "ada yang mau disampaiin..." },
+    openGraph: { title: "Ucapan Lebaran", description: "ada ucapan lebaran buat kamu..." },
   };
 }
 

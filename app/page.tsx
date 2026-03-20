@@ -313,7 +313,7 @@ export default function GeneratorPage() {
           <span className="badge">✦ RAMADHAN 1446 H ✦</span>
           <div className="title-wrap" style={{ marginTop: 8 }}>
             <h1 className="title" style={{ fontSize: "clamp(26px, 8vw, 40px)" }}>
-              Kirim ucapan-,<br />
+              Kirim ucapan,<br />
               <span className="accent">Tunggu transferan.</span>
             </h1>
             <div className="crescent" style={{ width: 48, height: 48, marginTop: 12 }} />

@@ -416,7 +416,7 @@ export default function GeneratorPage() {
               style={{ borderColor: namaError ? "#ff6b6b" : undefined }} />
             {namaError && <p style={{ fontSize: 10, color: "#ff6b6b", marginTop: 4, letterSpacing: "0.04em" }}>⚠ nama wajib diisi dulu</p>}
           </div>
-          <textarea className="gen-textarea" placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya bestie 🌙"} value={ucapan} maxLength={300} rows={4} onChange={(e) => setUcapan(e.target.value)} />
+          <textarea className="gen-textarea" placeholder={"Tulis ucapan kamu di sini...\nmisal: Mohon maaf lahir batin ya seng"} value={ucapan} maxLength={300} rows={4} onChange={(e) => setUcapan(e.target.value)} />
           <p className="upload-hint" style={{ textAlign: "right" }}>{ucapan.length}/300</p>
         </div>
 
